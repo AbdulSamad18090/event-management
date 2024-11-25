@@ -60,9 +60,9 @@ export default function FeaturedEvents() {
   const eventChunks = chunkEvents(events, 2); // Split events into chunks of 2
 
   return (
-    <section className="py-16 bg-neutral-100">
+    <section className="py-16 bg-gray-100 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-extrabold text-gray-900 mb-8">
+        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-300 mb-8">
           Featured Events
         </h2>
 
@@ -73,7 +73,7 @@ export default function FeaturedEvents() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-3">
                   {chunk.map((event, i) => (
                     <div
-                      className="flex gap-4 bg-white shadow-md rounded-lg"
+                      className="flex gap-4 bg-white dark:bg-gray-950 shadow-md rounded-lg"
                       key={i}
                     >
                       <Image
@@ -81,12 +81,14 @@ export default function FeaturedEvents() {
                         alt={event.title}
                         width={200}
                         height={150}
-                        className="rounded-l-lg bg-neutral-200"
+                        className="rounded-l-lg bg-gray-200 dark:bg-gray-800"
                       />
                       <div className="py-2 pr-2 flex flex-col justify-between gap-y-2 w-full">
                         <h1 className="text-xl font-semibold">{event.title}</h1>
                         <div>
-                          <p className="text-sm text-gray-500">{event.date}</p>
+                          <p className="text-sm text-gray-500">
+                            {event.date}
+                          </p>
                           <p className="text-sm text-gray-500">
                             {event.location}
                           </p>

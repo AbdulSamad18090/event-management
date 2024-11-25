@@ -93,9 +93,9 @@ export default function UpcomingEvents() {
   }, []);
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-white dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-extrabold text-gray-900 mb-8">
+        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-300 mb-8">
           Upcoming Events
         </h2>
 
@@ -107,15 +107,15 @@ export default function UpcomingEvents() {
                   {chunk.map((event) => (
                     <Card
                       key={event.id}
-                      className="bg-neutral-100 flex flex-col justify-between"
+                      className="bg-gray-100 dark:bg-gray-900 flex flex-col border-none justify-between"
                     >
-                      <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
+                      <CardHeader className="p-0 bg-gray-200 rounded-t-xl">
                         <Image
                           src={event.image}
                           alt={event.title}
                           width={600}
                           height={400}
-                          className="rounded-t-lg"
+                          className="rounded-t-lg dark:bg-gray-800"
                         />
                       </CardHeader>
                       <CardContent className="mt-4">

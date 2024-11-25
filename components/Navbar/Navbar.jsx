@@ -9,10 +9,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { ModeToggle } from "../ModeToggler";
 
 export default function Header() {
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-10">
+    <header className="bg-white dark:bg-gray-950 shadow-sm dark:shadow-gray-900 sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center">
@@ -23,24 +24,26 @@ export default function Header() {
           <nav className="hidden md:flex space-x-10">
             <Link
               href="/events"
-              className="text-base font-medium text-gray-500 hover:text-gray-900"
+              className="text-base font-medium text-gray-500 hover:text-blue-500"
             >
               Events
             </Link>
             <Link
               href="/organizers"
-              className="text-base font-medium text-gray-500 hover:text-gray-900"
+              className="text-base font-medium text-gray-500 hover:text-blue-500"
             >
               Organizers
             </Link>
             <Link
               href="/about"
-              className="text-base font-medium text-gray-500 hover:text-gray-900"
+              className="text-base font-medium text-gray-500 hover:text-blue-500"
             >
               About
             </Link>
           </nav>
-          <div className="hidden md:flex items-center ">
+
+          <div className="hidden md:flex items-center gap-3">
+            <ModeToggle />
             <Button>Get Started</Button>
           </div>
 
@@ -53,31 +56,32 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle className="text-2xl text-yellow-500">
+                  <SheetTitle className="text-2xl text-blue-500">
                     EventMaster
                   </SheetTitle>
                   <SheetDescription>
                     <div className=" flex flex-col items-start">
                       <Link
                         href="/events"
-                        className="text-left font-medium p-2 rounded-lg hover:bg-yellow-400 w-full"
+                        className="text-left font-medium p-2 rounded-lg hover:bg-blue-200 dark:hover:bg-primary/10 w-full"
                       >
                         Events
                       </Link>
                       <Link
                         href="/organizers"
-                        className="text-left font-medium p-2 rounded-lg hover:bg-yellow-400 w-full"
+                        className="text-left font-medium p-2 rounded-lg hover:bg-blue-200 dark:hover:bg-primary/10 w-full"
                       >
                         Organizers
                       </Link>
                       <Link
                         href="/about"
-                        className="text-left font-medium p-2 rounded-lg hover:bg-yellow-400 w-full"
+                        className="text-left font-medium p-2 rounded-lg hover:bg-blue-200 dark:hover:bg-primary/10 w-full"
                       >
                         About
                       </Link>
-                      <div className="flex items-center my-4 w-full">
+                      <div className="flex items-center gap-2 my-4 w-full">
                         <Button className="w-full">Get Started</Button>
+                        <ModeToggle />
                       </div>
                     </div>
                   </SheetDescription>
