@@ -13,13 +13,42 @@ import {
 } from "@/components/ui/select";
 import { TabsContent } from "@/components/ui/tabs";
 import React from "react";
+import { Separator } from "@/components/ui/separator";
+import { FcGoogle } from "react-icons/fc";
 
 const RegisterForm = () => {
-  const [role, setRole] = useState("attendee");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "attendee",
+  });
+
+  // Update formData state dynamically
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
+
+  const handleRoleChange = (value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      role: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form Data Submitted:", formData);
+    // Add your form submission logic here (e.g., API call)
+  };
 
   return (
     <TabsContent value="register">
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <Label htmlFor="name">Name</Label>
           <Input
@@ -27,6 +56,8 @@ const RegisterForm = () => {
             type="text"
             placeholder="Enter your full name"
             required
+            value={formData.name}
+            onChange={handleInputChange}
           />
         </div>
         <div>
@@ -36,6 +67,8 @@ const RegisterForm = () => {
             type="email"
             placeholder="Enter your email"
             required
+            value={formData.email}
+            onChange={handleInputChange}
           />
         </div>
         <div>
@@ -45,11 +78,13 @@ const RegisterForm = () => {
             type="password"
             placeholder="Create a password"
             required
+            value={formData.password}
+            onChange={handleInputChange}
           />
         </div>
         <div>
           <Label htmlFor="role">Select Your Role</Label>
-          <Select defaultValue={role} onValueChange={(value) => setRole(value)}>
+          <Select defaultValue={formData.role} onValueChange={handleRoleChange}>
             <SelectTrigger>
               <SelectValue placeholder="Choose a role" />
             </SelectTrigger>
@@ -63,6 +98,11 @@ const RegisterForm = () => {
           Register
         </Button>
       </form>
+      <Separator className="my-4" />
+      <Button variant="secondary" className="w-full">
+        <FcGoogle />
+        Continue with Google
+      </Button>
     </TabsContent>
   );
 };
