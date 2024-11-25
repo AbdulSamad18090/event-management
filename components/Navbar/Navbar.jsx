@@ -18,7 +18,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center gap-2">
-            <Image src={'/images/logo.png'} width={50} height={50}/>
+            <Image src={"/images/logo.png"} alt="logo" width={50} height={50} />
             <Link href="/" className="font-bold text-xl text-primary">
               EventMaster
             </Link>
@@ -46,7 +46,9 @@ export default function Header() {
 
           <div className="hidden md:flex items-center gap-3">
             <ModeToggle />
-            <Button>Get Started</Button>
+            <Link href={"/auth"}>
+              <Button>Get Started</Button>
+            </Link>
           </div>
 
           <div className="md:hidden flex items-center ">
@@ -58,7 +60,13 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle className="text-2xl text-red-500">
+                  <SheetTitle className="text-2xl text-red-500 flex items-center gap-2">
+                    <Image
+                      src={"/images/logo.png"}
+                      alt="logo"
+                      width={50}
+                      height={50}
+                    />
                     EventMaster
                   </SheetTitle>
                   <SheetDescription>
@@ -82,7 +90,9 @@ export default function Header() {
                         About
                       </Link>
                       <div className="flex items-center gap-2 my-4 w-full">
-                        <Button className="w-full">Get Started</Button>
+                        <Link href={"/auth"}>
+                          <Button className="w-full">Get Started</Button>
+                        </Link>
                         <ModeToggle />
                       </div>
                     </div>
