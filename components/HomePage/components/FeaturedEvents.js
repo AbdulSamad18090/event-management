@@ -71,8 +71,11 @@ export default function FeaturedEvents() {
             {eventChunks.map((chunk, index) => (
               <CarouselItem key={index}>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-3">
-                  {chunk.map((event) => (
-                    <div className="flex gap-4 bg-white shadow-md rounded-lg">
+                  {chunk.map((event, i) => (
+                    <div
+                      className="flex gap-4 bg-white shadow-md rounded-lg"
+                      key={i}
+                    >
                       <Image
                         src={event.image}
                         alt={event.title}
@@ -83,14 +86,12 @@ export default function FeaturedEvents() {
                       <div className="py-2 pr-2 flex flex-col justify-between gap-y-2 w-full">
                         <h1 className="text-xl font-semibold">{event.title}</h1>
                         <div>
-                          <p className="text-sm text-gray-500">
-                            {event.date}
-                          </p>
+                          <p className="text-sm text-gray-500">{event.date}</p>
                           <p className="text-sm text-gray-500">
                             {event.location}
                           </p>
                         </div>
-                        <Button size='sm'>View Details</Button>
+                        <Button size="sm">View Details</Button>
                       </div>
                     </div>
                     // <Card key={event.id}>
@@ -123,7 +124,9 @@ export default function FeaturedEvents() {
           <CarouselNext /> */}
         </Carousel>
 
-        <div className="flex justify-center mt-10"><Button>Browse All Events</Button></div>
+        <div className="flex justify-center mt-10">
+          <Button>Browse All Events</Button>
+        </div>
       </div>
     </section>
   );
