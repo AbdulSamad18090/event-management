@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <div className="bg-white dark:bg-gray-950 flex flex-col items-center text-center py-14 px-4">
+    <div className="bg-white dark:bg-neutral-950 flex flex-col items-center text-center py-14 px-4">
       <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl mb-6">
         Welcome to <span className="text-primary">EventMaster</span>
       </h1>

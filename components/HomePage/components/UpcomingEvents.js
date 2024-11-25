@@ -93,9 +93,9 @@ export default function UpcomingEvents() {
   }, []);
 
   return (
-    <section className="py-16 bg-white dark:bg-gray-950">
+    <section className="py-16 bg-white dark:bg-neutral-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-300 mb-8">
+        <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-300 mb-8">
           Upcoming Events
         </h2>
 
@@ -107,23 +107,23 @@ export default function UpcomingEvents() {
                   {chunk.map((event) => (
                     <Card
                       key={event.id}
-                      className="bg-gray-100 dark:bg-gray-900 flex flex-col border-none justify-between"
+                      className="bg-neutral-100 dark:bg-neutral-900 flex flex-col border-none justify-between"
                     >
-                      <CardHeader className="p-0 bg-gray-200 rounded-t-xl">
+                      <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
                         <Image
                           src={event.image}
                           alt={event.title}
                           width={600}
                           height={400}
-                          className="rounded-t-lg dark:bg-gray-800"
+                          className="rounded-t-lg dark:bg-neutral-800"
                         />
                       </CardHeader>
                       <CardContent className="mt-4">
                         <CardTitle className='text-lg md:text-xl'>{event.title}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-2">
+                        <p className="text-sm text-neutral-500 mt-2">
                           {event.date}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-neutral-500">
                           {event.location}
                         </p>
                       </CardContent>
