@@ -12,17 +12,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TabsContent } from "@/components/ui/tabs";
-import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
+import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react"; // Import next-auth's signIn
+import { toast } from "@/hooks/use-toast";
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "attendee",
+    role: "attendee", // Default to attendee
   });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   // Update formData state dynamically
   const handleInputChange = (e) => {
@@ -40,10 +46,71 @@ const RegisterForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-    // Add your form submission logic here (e.g., API call)
+    setError(""); // Reset previous error message
+    setSuccess(false); // Reset success message
+    setLoading(true); // Start loading state
+
+    try {
+      // Send registration request to your API
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: formData.role,
+          }),
+        }
+      );
+
+      const data = await res.json();
+      setLoading(false); // End loading state
+
+      if (res.ok) {
+        // Registration successful, now log the user in
+        setSuccess(true);
+        console.log("User registered successfully");
+        toast({
+          title: "Registration successful.",
+        });
+
+        // Automatically log the user in using next-auth's signIn method
+        const signInRes = await signIn("credentials", {
+          redirect: false,
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (signInRes?.error) {
+          setError("Failed to log in after registration.");
+        } else {
+          // Optionally, redirect the user after successful login (e.g., to the dashboard)
+          window.location.href = "/dashboard"; // Or use router.push('/dashboard') for client-side routing
+        }
+      } else {
+        // Handle errors (e.g., user already exists)
+        setError(data.error || "An error occurred during registration.");
+        toast({
+          variant: "destructive",
+          title: data.error || "An error occurred during registration.",
+        });
+      }
+    } catch (error) {
+      setLoading(false); // End loading state
+      setError("An error occurred during registration. Please try again.");
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: data.error || "An error occurred during registration.",
+      });
+    }
   };
 
   return (
@@ -84,7 +151,7 @@ const RegisterForm = () => {
         </div>
         <div>
           <Label htmlFor="role">Select Your Role</Label>
-          <Select defaultValue={formData.role} onValueChange={handleRoleChange}>
+          <Select value={formData.role} onValueChange={handleRoleChange}>
             <SelectTrigger>
               <SelectValue placeholder="Choose a role" />
             </SelectTrigger>
@@ -94,12 +161,17 @@ const RegisterForm = () => {
             </SelectContent>
           </Select>
         </div>
-        <Button type="submit" className="w-full">
-          Register
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading && <Loader2 className="animate-spin" />}
+          {loading ? "Registering..." : "Register"}
         </Button>
       </form>
       <Separator className="my-4" />
-      <Button variant="secondary" className="w-full">
+      <Button
+        variant="secondary"
+        className="w-full"
+        onClick={() => signIn("google")}
+      >
         <FcGoogle />
         Continue with Google
       </Button>
