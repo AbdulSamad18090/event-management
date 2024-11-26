@@ -136,8 +136,8 @@ export default function UpcomingEvents() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          {/* <CarouselPrevious />
-          <CarouselNext /> */}
+          <CarouselPrevious />
+          <CarouselNext />
         </Carousel>
 
         <div className="flex justify-center mt-10">

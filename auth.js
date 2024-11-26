@@ -42,7 +42,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 email: user.email,
                 role: user.role,
                 image: user.image,
-                bio: user.bio,  // Ensure bio is included
+                bio: user.bio, // Ensure bio is included
               };
             } else {
               // Password invalid
@@ -83,8 +83,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // Create new user with Google profile data, including all fields (name, email, bio)
             const newUser = await User.create({
               email: user.email,
-              name: profile.name,
-              image: profile.image,
+              name: user.name,
+              image: user.image,
               password: "", // Ensure password is empty for Google login
               role: "attendee", // Default role (adjust as needed)
               isGoogleLogin: true, // Mark that this user logged in via Google
@@ -108,8 +108,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: token.user.name,
           email: token.user.email,
           image: token.user.image,
-          bio: token.user.bio,  // Add bio to session data
-          role: token.user.role,  // Add role to session data
+          bio: token.user.bio, // Add bio to session data
+          role: token.user.role, // Add role to session data
         };
       }
       return session;
@@ -124,8 +124,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           email: user.email,
           image: user.image,
-          bio: user.bio,  // Include bio in JWT
-          role: user.role,  // Include role in JWT
+          bio: user.bio, // Include bio in JWT
+          role: user.role, // Include role in JWT
         };
       }
       return token;

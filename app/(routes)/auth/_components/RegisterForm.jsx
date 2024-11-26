@@ -18,9 +18,15 @@ import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react"; // Import next-auth's signIn
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const RegisterForm = () => {
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -31,6 +37,7 @@ const RegisterForm = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const router = useRouter();
 
@@ -48,6 +55,7 @@ const RegisterForm = () => {
       ...prevData,
       role: value,
     }));
+    localStorage.setItem("selectedRole", value);
   };
 
   const handleSubmit = async (e) => {
@@ -95,6 +103,7 @@ const RegisterForm = () => {
         if (signInRes?.error) {
           setError("Failed to log in after registration.");
         } else {
+          // Redirect to dashboard or desired route
         }
       } else {
         // Handle errors (e.g., user already exists)
@@ -110,9 +119,22 @@ const RegisterForm = () => {
       console.error("Error:", error);
       toast({
         variant: "destructive",
-        title: data.error || "An error occurred during registration.",
+        title: error.message || "An error occurred during registration.",
       });
     }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+
+    // Pass the selected role when signing in with Google
+    const signInRes = await signIn("google", {
+      redirect: false,
+      role: formData.role,
+    });
+    
+
+    setLoading(false);
   };
 
   return (
@@ -169,14 +191,39 @@ const RegisterForm = () => {
         </Button>
       </form>
       <Separator className="my-4" />
-      <Button
-        variant="secondary"
-        className="w-full"
-        onClick={() => signIn("google")}
-      >
-        <FcGoogle />
-        Continue with Google
-      </Button>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button variant="secondary" className="w-full">
+            <FcGoogle />
+            Continue with Google
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Select Your Role</DialogTitle>
+          <DialogDescription>
+            Select your role before continuing with Google login.
+          </DialogDescription>
+          <Select value={formData.role} onValueChange={handleRoleChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose a role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="organizer">Organizer</SelectItem>
+              <SelectItem value="attendee">Attendee</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={() => handleGoogleSignIn(formData.role)}
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              "Register with Google"
+            )}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </TabsContent>
   );
 };
