@@ -11,35 +11,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      async profile(profile) {
-        try {
-          await dbConnect(); // Connect to the database
-
-          let user = await User.findOne({ email: profile.email });
-
-          if (!user) {
-            user = new User({
-              name: profile.name,
-              email: profile.email,
-              role: "attendee", // Default to attendee for Google login
-            });
-            await user.save();
-          } else {
-            user.name = profile.name; // Update user name if changed
-            await user.save();
-          }
-
-          return {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-          };
-        } catch (error) {
-          console.error("Error during Google sign-in:", error);
-          return null; // Prevent login on error
-        }
-      },
     }),
 
     // Credentials provider for custom login (email/password)
@@ -70,11 +41,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                image: user.image,
+                bio: user.bio,  // Ensure bio is included
               };
             } else {
               // Password invalid
               return null;
             }
+          } else if (user.isGoogleLogin) {
+            throw new Error("Please Login with your Google account");
+            return null;
           } else {
             // No user found with this email
             return null;
@@ -89,9 +65,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   callbacks: {
     // signIn callback: return true or false depending on whether the login is successful
-    async signIn({ user, account, profile, credentials }) {
+    async signIn({ user, account, profile }) {
       if (user) {
-        console.log("User:", user)
+        if (account.provider === "google") {
+          await dbConnect();
+
+          const existing = await User.findOne({ email: user.email });
+
+          if (existing) {
+            // Update user with Google profile data, ensuring all fields are included
+            await User.findByIdAndUpdate(existing._id, {
+              name: profile.name || existing.name,
+              image: profile.image || existing.image,
+              bio: profile.bio || existing.bio, // Add bio if available
+            });
+          } else {
+            // Create new user with Google profile data, including all fields (name, email, bio)
+            const newUser = await User.create({
+              email: user.email,
+              name: profile.name,
+              image: profile.image,
+              password: "", // Ensure password is empty for Google login
+              role: "attendee", // Default role (adjust as needed)
+              isGoogleLogin: true, // Mark that this user logged in via Google
+              bio: profile.bio || "", // Add bio if available
+            });
+            await newUser.save();
+          }
+        }
         return true; // Allow sign-in if user is found and authorized
       } else {
         return false; // Deny sign-in if user is invalid (e.g., invalid password or no user)
@@ -99,15 +100,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     // session callback: attach the user data to the session object
-    async session({ session, user, token }) {
-      session.user = token.user; // Attach user data to session
+    async session({ session, token }) {
+      // Ensure all relevant user data is passed in session
+      if (token.user) {
+        session.user = {
+          id: token.user.id,
+          name: token.user.name,
+          email: token.user.email,
+          image: token.user.image,
+          bio: token.user.bio,  // Add bio to session data
+          role: token.user.role,  // Add role to session data
+        };
+      }
       return session;
     },
 
     // jwt callback: add user data to the JWT token when the user is logged in
     async jwt({ token, user }) {
       if (user) {
-        token.user = user; // Add user data to JWT token
+        // Add all relevant user data to the JWT token
+        token.user = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          bio: user.bio,  // Include bio in JWT
+          role: user.role,  // Include role in JWT
+        };
       }
       return token;
     },

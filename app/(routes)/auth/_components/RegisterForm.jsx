@@ -17,8 +17,10 @@ import { FcGoogle } from "react-icons/fc";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react"; // Import next-auth's signIn
 import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const RegisterForm = () => {
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,6 +31,8 @@ const RegisterForm = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const router = useRouter();
 
   // Update formData state dynamically
   const handleInputChange = (e) => {
@@ -83,7 +87,7 @@ const RegisterForm = () => {
 
         // Automatically log the user in using next-auth's signIn method
         const signInRes = await signIn("credentials", {
-          redirect: false,
+          redirectTo: "/dashboard",
           email: formData.email,
           password: formData.password,
         });
@@ -91,8 +95,6 @@ const RegisterForm = () => {
         if (signInRes?.error) {
           setError("Failed to log in after registration.");
         } else {
-          // Optionally, redirect the user after successful login (e.g., to the dashboard)
-          window.location.href = "/dashboard"; // Or use router.push('/dashboard') for client-side routing
         }
       } else {
         // Handle errors (e.g., user already exists)

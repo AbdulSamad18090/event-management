@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -11,8 +12,10 @@ import {
 } from "@/components/ui/sheet";
 import { ModeToggle } from "../ModeToggler";
 import Image from "next/image";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Header() {
+  const { data: session } = useSession();
   return (
     <header className="bg-white dark:bg-neutral-950 shadow-sm dark:shadow-neutral-900 sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,9 +49,19 @@ export default function Header() {
 
           <div className="hidden md:flex items-center gap-3">
             <ModeToggle />
-            <Link href={"/auth"}>
-              <Button>Get Started</Button>
-            </Link>
+            {session ? (
+              <Button
+                onClick={() => {
+                  signOut({ redirectTo: "/" });
+                }}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Link href={"/auth"}>
+                <Button className="w-full">Get Started</Button>
+              </Link>
+            )}
           </div>
 
           <div className="md:hidden flex items-center ">
@@ -90,9 +103,19 @@ export default function Header() {
                         About
                       </Link>
                       <div className="flex items-center gap-2 my-4 w-full">
-                        <Link href={"/auth"}>
-                          <Button className="w-full">Get Started</Button>
-                        </Link>
+                        {session ? (
+                          <Button
+                            onClick={() => {
+                              signOut({ redirectTo: "/" });
+                            }}
+                          >
+                            Logout
+                          </Button>
+                        ) : (
+                          <Link href={"/auth"}>
+                            <Button className="w-full">Get Started</Button>
+                          </Link>
+                        )}
                         <ModeToggle />
                       </div>
                     </div>

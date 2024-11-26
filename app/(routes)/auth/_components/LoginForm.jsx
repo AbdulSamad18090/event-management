@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react"; // Ensure correct import from next-auth
+import { toast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react"; // Ensure this is imported
 
 const LoginForm = () => {
   // State to store form data
@@ -16,6 +17,7 @@ const LoginForm = () => {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   // Update formData state dynamically
   const handleInputChange = (e) => {
@@ -29,21 +31,28 @@ const LoginForm = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login Form Submitted:", formData);
-
-    const result = await signIn("login", {
+    setLoading(true);
+    const result = await signIn("credentials", {
+      // redirectTo: "/",
       redirect: false, // Prevent automatic redirection
       email: formData.email,
       password: formData.password,
     });
 
-    if (result.error) {
+    if (result?.error) {
       console.error("Login Error:", result.error);
-      // Optionally display an error message to the user
+      setLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Invalid Email or Password",
+      });
     } else {
       console.log("Login Success:", result);
-      // Redirect user to a protected page or dashboard
-      window.location.href = "/dashboard"; // Example redirect
+      setLoading(false);
+      toast({
+        title: "Login successful.",
+      });
+      window.location.replace("/dashboard");
     }
   };
 
@@ -72,15 +81,18 @@ const LoginForm = () => {
             onChange={handleInputChange}
           />
         </div>
-        <Button type="submit" className="w-full">
-          Login
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading && <Loader2 className="animate-spin" />}
+          {loading ? "Please Wait..." : "Login"}
         </Button>
       </form>
       <Separator className="my-4" />
       <Button
         variant="secondary"
         className="w-full"
-        onClick={() => signIn("google", { redirect: true, callbackUrl: "/dashboard" })}
+        onClick={() =>
+          signIn("google", { redirect: true, callbackUrl: "/dashboard" })
+        }
       >
         <FcGoogle />
         Continue with Google

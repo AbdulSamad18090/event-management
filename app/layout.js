@@ -3,7 +3,8 @@ import "./globals.css";
 import Header from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/toaster";
+import SessionWrapper from "@/components/SessionWrapper/SessionWrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,17 +28,19 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          {children}
-          <Footer />
-          <Toaster />
-        </ThemeProvider>
+        <SessionWrapper>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            {children}
+            <Footer />
+            <Toaster />
+          </ThemeProvider>
+        </SessionWrapper>
       </body>
     </html>
   );
