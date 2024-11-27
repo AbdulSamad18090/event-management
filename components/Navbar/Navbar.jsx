@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { ExternalLink, LogOut, Menu } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -13,9 +14,29 @@ import {
 import { ModeToggle } from "../ModeToggler";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
+import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
 
 export default function Header() {
   const { data: session } = useSession();
+
+  function getInitials(name) {
+    // Split the name into words and take the first letter of each word, then join them together.
+    const initials = name
+      .split(" ") // Split by space
+      .map((word) => word.charAt(0).toUpperCase()) // Get the first letter of each word
+      .join(""); // Join the initials together
+    return initials;
+  }
+
   return (
     <header className="bg-white dark:bg-neutral-950 shadow-sm dark:shadow-neutral-900 sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,13 +70,58 @@ export default function Header() {
 
           <div className="hidden md:flex items-center gap-3">
             <ModeToggle />
+
+            {session ? (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <Avatar>
+                      <AvatarImage src={session?.user.image} />
+                      <AvatarFallback className="rounded">
+                        {getInitials(session?.user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Profile</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem>
+                      <div className="flex items-center gap-4 rounded-lg cursor-pointer">
+                        <Avatar className="h-16 w-16 relative">
+                          <AvatarImage src={session?.user.image} />
+                          <AvatarFallback className="rounded">
+                            {getInitials(session?.user.name)}
+                          </AvatarFallback>
+                          <ExternalLink
+                            size={40}
+                            className="absolute top-0 right-0"
+                          />
+                        </Avatar>
+
+                        <Link href={"/profile"}>
+                          <h1 className="text-xl font-">
+                            {session?.user.name}
+                          </h1>
+                          <Badge className={"w-fit rounded"}>
+                            {session?.user?.role.toUpperCase()}
+                          </Badge>
+                        </Link>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : null}
             {session ? (
               <Button
+                variant="icon"
                 onClick={() => {
                   signOut({ redirectTo: "/" });
                 }}
               >
-                Logout
+                <LogOut />
               </Button>
             ) : (
               <Link href={"/auth"}>
@@ -71,7 +137,7 @@ export default function Header() {
                   <Menu />
                 </Button>
               </SheetTrigger>
-              <SheetContent>
+              <SheetContent className="flex flex-col justify-between">
                 <SheetHeader>
                   <SheetTitle className="text-2xl text-red-500 flex items-center gap-2">
                     <Image
@@ -103,24 +169,53 @@ export default function Header() {
                         About
                       </Link>
                       <div className="flex items-center gap-2 my-4 w-full">
+                        <ModeToggle />
                         {session ? (
                           <Button
+                            variant="icon"
                             onClick={() => {
                               signOut({ redirectTo: "/" });
                             }}
                           >
-                            Logout
+                            <LogOut />
                           </Button>
                         ) : (
                           <Link href={"/auth"}>
                             <Button className="w-full">Get Started</Button>
                           </Link>
                         )}
-                        <ModeToggle />
                       </div>
                     </div>
                   </SheetDescription>
                 </SheetHeader>
+
+                <SheetFooter className={"sm:justify-start"}>
+                  <div className="flex items-center justify-between gap-4">
+                    {session ? (
+                      <div className="flex w-full items-center gap-4 rounded-lg cursor-pointer">
+                        <Avatar className="h-16 w-16 relative">
+                          <AvatarImage src={session?.user.image} />
+                          <AvatarFallback className="rounded">
+                            {getInitials(session?.user.name)}
+                          </AvatarFallback>
+                          <ExternalLink
+                            size={20}
+                            className="absolute top-0 right-0"
+                          />
+                        </Avatar>
+
+                        <Link href={"/profile"}>
+                          <h1 className="text-xl font-">
+                            {session?.user.name}
+                          </h1>
+                          <Badge className={"w-fit rounded"}>
+                            {session?.user?.role.toUpperCase()}
+                          </Badge>
+                        </Link>
+                      </div>
+                    ) : null}
+                  </div>
+                </SheetFooter>
               </SheetContent>
             </Sheet>
           </div>

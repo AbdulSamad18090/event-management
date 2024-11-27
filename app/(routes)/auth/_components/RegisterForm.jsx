@@ -199,8 +199,8 @@ const RegisterForm = () => {
           {loading ? "Registering..." : "Register"}
         </Button>
       </form>
-      <Separator className="my-4" />
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      {/* <Separator className="my-4" /> */}
+      {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button variant="secondary" className="w-full">
             <FcGoogle />
@@ -232,7 +232,7 @@ const RegisterForm = () => {
             )}
           </Button>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </TabsContent>
   );
 };

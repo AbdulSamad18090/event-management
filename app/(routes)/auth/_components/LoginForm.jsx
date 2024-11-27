@@ -86,8 +86,8 @@ const LoginForm = () => {
           {loading ? "Please Wait..." : "Login"}
         </Button>
       </form>
-      <Separator className="my-4" />
-      <Button
+      {/* <Separator className="my-4" /> */}
+      {/* <Button
         variant="secondary"
         className="w-full"
         onClick={() =>
@@ -96,7 +96,7 @@ const LoginForm = () => {
       >
         <FcGoogle />
         Continue with Google
-      </Button>
+      </Button> */}
     </TabsContent>
   );
 };
