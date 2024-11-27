@@ -11,6 +11,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      // profile(profile) {
+      //   return {
+      //     role: profile.role ?? "assignee",
+      //     image: profile.image,
+      //     ...profile,
+      //   };
+      // },
     }),
 
     // Credentials provider for custom login (email/password)
@@ -66,6 +73,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     // signIn callback: return true or false depending on whether the login is successful
     async signIn({ user, account, profile }) {
+      console.log("User ====>>", user);
+      console.log("Account ====>>", account);
+      console.log("Profile ====>>", profile);
       if (user) {
         if (account.provider === "google") {
           await dbConnect();
@@ -76,15 +86,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // Update user with Google profile data, ensuring all fields are included
             await User.findByIdAndUpdate(existing._id, {
               name: profile.name || existing.name,
-              image: profile.image || existing.image,
+              image: profile.picture || existing.image,
               bio: profile.bio || existing.bio, // Add bio if available
             });
           } else {
             // Create new user with Google profile data, including all fields (name, email, bio)
             const newUser = await User.create({
-              email: user.email,
-              name: user.name,
-              image: user.image,
+              email: profile.email,
+              name: profile.name,
+              image: profile.picture,
               password: "", // Ensure password is empty for Google login
               role: "attendee", // Default role (adjust as needed)
               isGoogleLogin: true, // Mark that this user logged in via Google

@@ -31,7 +31,7 @@ const RegisterForm = () => {
     name: "",
     email: "",
     password: "",
-    role: "attendee", // Default to attendee
+    role: localStorage.getItem("selectedRole") || "attendee", // Default to attendee
   });
 
   const [error, setError] = useState("");
@@ -132,7 +132,6 @@ const RegisterForm = () => {
       redirect: false,
       role: formData.role,
     });
-    
 
     setLoading(false);
   };
