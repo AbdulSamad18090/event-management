@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function HeroSection() {
+  const { data: session } = useSession();
   return (
     <div className="bg-muted/0 flex flex-col items-center text-center py-14 px-4">
       <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl mb-6">
@@ -13,12 +15,21 @@ export default function HeroSection() {
         unforgettable.
       </p>
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-        <Button asChild size="lg">
-          <Link href="/events">Browse Events</Link>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <Link href="/events/create">Create Event</Link>
-        </Button>
+        {(!session || session?.user.role !== "organizer") && (
+          <Button asChild size="lg">
+            <Link href="/events">Browse Events</Link>
+          </Button>
+        )}
+        {session?.user.role === "organizer" && (
+          <>
+            <Button asChild size="lg">
+              <Link href="/events/manage">Manage Events</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/events/create">Create Event</Link>
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

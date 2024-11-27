@@ -18,4 +18,9 @@ export const normalMenu = [
       },
     ],
   },
+  {
+    name: "Organizers",
+    url: "/organizers",
+    submenus: [],
+  }
 ];

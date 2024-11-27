@@ -19,13 +19,13 @@ export const attendeeMenu = [
     ],
   },
   {
-    name: "My Tickets",
-    url: "/my-tickets",
+    name: "Organizers",
+    url: "/organizers",
     submenus: [],
   },
   {
-    name: "Profile",
-    url: "/profile",
+    name: "My Tickets",
+    url: "/my-tickets",
     submenus: [],
   },
 ];
