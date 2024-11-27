@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";  // Import useEffect
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +29,7 @@ const RegisterForm = () => {
     name: "",
     email: "",
     password: "",
-    role: localStorage.getItem("selectedRole") || "attendee", // Default to attendee
+    role: "attendee", // Default to attendee
   });
 
   const [error, setError] = useState("");
@@ -40,6 +38,16 @@ const RegisterForm = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const router = useRouter();
+
+  // Set role from localStorage when the component mounts
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedRole = localStorage.getItem("selectedRole");
+      if (savedRole) {
+        setFormData((prevData) => ({ ...prevData, role: savedRole }));
+      }
+    }
+  }, []);
 
   // Update formData state dynamically
   const handleInputChange = (e) => {
@@ -55,7 +63,9 @@ const RegisterForm = () => {
       ...prevData,
       role: value,
     }));
-    localStorage.setItem("selectedRole", value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("selectedRole", value);
+    }
   };
 
   const handleSubmit = async (e) => {
