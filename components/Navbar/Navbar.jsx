@@ -69,16 +69,17 @@ export default function Header() {
             </Link>
           </div>
           <nav className="hidden md:flex items-center space-x-2">
-            {menuItems.map((item) =>
+            {menuItems.map((item, i) =>
               item.submenus.length > 0 ? (
-                <NavigationMenu>
+                <NavigationMenu key={i}>
                   <NavigationMenuList>
                     <NavigationMenuItem>
                       <NavigationMenuTrigger>{item.name}</NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <ul className="grid grid-cols-2 w-[400px] gap-3 p-4 ">
-                          {item?.submenus.map((submenu) => (
+                          {item?.submenus.map((submenu, i) => (
                             <NavigationMenuLink
+                              key={i}
                               href={submenu.url}
                               className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded cursor-pointer"
                             >
@@ -93,7 +94,7 @@ export default function Header() {
               ) : (
                 <>
                   <Link
-                    key={item.name}
+                    key={i}
                     href={item.url}
                     className="hover:text-red-500 transition-all"
                   >
@@ -186,9 +187,9 @@ export default function Header() {
                   </SheetTitle>
                   <SheetDescription>
                     <div className=" flex flex-col items-start">
-                      {menuItems.map((item) =>
+                      {menuItems.map((item, i) =>
                         item.submenus.length > 0 ? (
-                          <NavigationMenu>
+                          <NavigationMenu key={i}>
                             <NavigationMenuList>
                               <NavigationMenuItem>
                                 <NavigationMenuTrigger>
@@ -196,8 +197,9 @@ export default function Header() {
                                 </NavigationMenuTrigger>
                                 <NavigationMenuContent>
                                   <ul className="grid grid-cols-1 w-[200px] md:w-[400px] gap-3 p-4 ">
-                                    {item?.submenus.map((submenu) => (
+                                    {item?.submenus.map((submenu, i) => (
                                       <NavigationMenuLink
+                                        key={i}
                                         href={submenu.url}
                                         className="hover:bg-neutral-100 text-left dark:hover:bg-neutral-800 p-3 rounded cursor-pointer"
                                       >
@@ -212,7 +214,7 @@ export default function Header() {
                         ) : (
                           <>
                             <Link
-                              key={item.name}
+                              key={i}
                               href={item.url}
                               className="hover:text-red-500 transition-all"
                             >
