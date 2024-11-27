@@ -1,16 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { FcGoogle } from "react-icons/fc";
-import { signIn, useSession } from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import ForgotPasswordDialog from "./ForgotPasswordDialog";
 
 const LoginForm = () => {
@@ -21,6 +18,10 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [isOpenForgotPasswordDialog, setIsOpenForgotPasswordDialog] =
     useState(false);
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -30,8 +31,38 @@ const LoginForm = () => {
     }));
   };
 
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { email: "", password: "" };
+
+    // Email Validation
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address.";
+      valid = false;
+    }
+
+    // Password Validation
+    if (!formData.password) {
+      newErrors.password = "Password is required.";
+      valid = false;
+    } else if (formData.password.length < 5) {
+      newErrors.password = "Password must be at least 5 characters long.";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate the form before submitting
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
     const result = await signIn("credentials", {
       redirect: false,
@@ -63,12 +94,12 @@ const LoginForm = () => {
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              type="email"
+              // type="email"
               placeholder="Enter your email"
-              required
               value={formData.email}
               onChange={handleInputChange}
             />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
@@ -76,10 +107,10 @@ const LoginForm = () => {
               id="password"
               type="password"
               placeholder="Enter your password"
-              required
               value={formData.password}
               onChange={handleInputChange}
             />
+            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
             <div className="w-full flex justify-end">
               <Button
                 variant="link"
@@ -97,17 +128,6 @@ const LoginForm = () => {
             {loading ? "Please Wait..." : "Login"}
           </Button>
         </form>
-        {/* <Separator className="my-4" /> */}
-        {/* <Button
-        variant="secondary"
-        className="w-full"
-        onClick={() =>
-          signIn("google", { redirect: true, callbackUrl: "/dashboard" })
-        }
-      >
-        <FcGoogle />
-        Continue with Google
-      </Button> */}
       </TabsContent>
       <ForgotPasswordDialog
         isOpen={isOpenForgotPasswordDialog}

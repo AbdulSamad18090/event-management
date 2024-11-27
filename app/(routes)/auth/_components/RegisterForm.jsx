@@ -10,19 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TabsContent } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { FcGoogle } from "react-icons/fc";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react"; // Import next-auth's signIn
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -32,10 +23,14 @@ const RegisterForm = () => {
     role: "attendee", // Default to attendee
   });
 
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "",
+  });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const router = useRouter();
 
@@ -49,7 +44,7 @@ const RegisterForm = () => {
     }
   }, []);
 
-  // Update formData state dynamically
+  // Handle input change dynamically
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
@@ -68,11 +63,52 @@ const RegisterForm = () => {
     }
   };
 
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { name: "", email: "", password: "", role: "" };
+
+    // Name validation
+    if (!formData.name) {
+      newErrors.name = "Name is required.";
+      valid = false;
+    }
+
+    // Email validation
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address.";
+      valid = false;
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = "Password is required.";
+      valid = false;
+    } else if (formData.password.length < 5) {
+      newErrors.password = "Password must be at least 5 characters long.";
+      valid = false;
+    }
+
+    // Role validation
+    if (!formData.role) {
+      newErrors.role = "Please select a role.";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Reset previous error message
-    setSuccess(false); // Reset success message
+    setSuccess(false);
     setLoading(true); // Start loading state
+
+    // Validate the form
+    if (!validateForm()) {
+      setLoading(false); // End loading state
+      return; // Stop form submission if validation fails
+    }
 
     try {
       // Send registration request to your API
@@ -111,13 +147,19 @@ const RegisterForm = () => {
         });
 
         if (signInRes?.error) {
-          setError("Failed to log in after registration.");
+          setErrors({
+            ...errors,
+            email: "Failed to log in after registration.",
+          });
         } else {
           // Redirect to dashboard or desired route
         }
       } else {
         // Handle errors (e.g., user already exists)
-        setError(data.error || "An error occurred during registration.");
+        setErrors({
+          ...errors,
+          email: data.error || "An error occurred during registration.",
+        });
         toast({
           variant: "destructive",
           title: data.error || "An error occurred during registration.",
@@ -125,25 +167,16 @@ const RegisterForm = () => {
       }
     } catch (error) {
       setLoading(false); // End loading state
-      setError("An error occurred during registration. Please try again.");
+      setErrors({
+        ...errors,
+        email: "An error occurred during registration. Please try again.",
+      });
       console.error("Error:", error);
       toast({
         variant: "destructive",
         title: error.message || "An error occurred during registration.",
       });
     }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-
-    // Pass the selected role when signing in with Google
-    const signInRes = await signIn("google", {
-      redirect: false,
-      role: formData.role,
-    });
-
-    setLoading(false);
   };
 
   return (
@@ -155,21 +188,23 @@ const RegisterForm = () => {
             id="name"
             type="text"
             placeholder="Enter your full name"
-            required
             value={formData.name}
             onChange={handleInputChange}
           />
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
         </div>
         <div>
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
-            type="email"
+            // type="email"
             placeholder="Enter your email"
-            required
             value={formData.email}
             onChange={handleInputChange}
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
@@ -177,10 +212,12 @@ const RegisterForm = () => {
             id="password"
             type="password"
             placeholder="Create a password"
-            required
             value={formData.password}
             onChange={handleInputChange}
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="role">Select Your Role</Label>
@@ -193,46 +230,13 @@ const RegisterForm = () => {
               <SelectItem value="attendee">Attendee</SelectItem>
             </SelectContent>
           </Select>
+          {errors.role && <p className="text-red-500 text-sm">{errors.role}</p>}
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
           {loading && <Loader2 className="animate-spin" />}
           {loading ? "Registering..." : "Register"}
         </Button>
       </form>
-      {/* <Separator className="my-4" /> */}
-      {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button variant="secondary" className="w-full">
-            <FcGoogle />
-            Continue with Google
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogTitle>Select Your Role</DialogTitle>
-          <DialogDescription>
-            Select your role before continuing with Google login.
-          </DialogDescription>
-          <Select value={formData.role} onValueChange={handleRoleChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Choose a role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="organizer">Organizer</SelectItem>
-              <SelectItem value="attendee">Attendee</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={() => handleGoogleSignIn(formData.role)}
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              "Register with Google"
-            )}
-          </Button>
-        </DialogContent>
-      </Dialog> */}
     </TabsContent>
   );
 };
