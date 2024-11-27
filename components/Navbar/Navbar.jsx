@@ -24,9 +24,30 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
+import { attendeeMenu } from "./menus/attendeeMenu";
+import { organizerMenu } from "./menus/organizerMenu";
+import { normalMenu } from "./menus/normalMenu";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  NavigationMenuViewport,
+} from "@/components/ui/navigation-menu";
 
 export default function Header() {
   const { data: session } = useSession();
+
+  const menuItems = session
+    ? session.user.role === "attendee"
+      ? attendeeMenu // If the user is an attendee, use the attendee menu
+      : session.user.role === "organizer"
+      ? organizerMenu // If the user is an organizer, use the organizer menu
+      : normalMenu // Default to normal menu if role is not found
+    : normalMenu;
 
   function getInitials(name) {
     // Split the name into words and take the first letter of each word, then join them together.
@@ -47,25 +68,40 @@ export default function Header() {
               EventMaster
             </Link>
           </div>
-          <nav className="hidden md:flex space-x-10">
-            <Link
-              href="/events"
-              className="text-base font-medium text-neutral-500 hover:text-red-500"
-            >
-              Events
-            </Link>
-            <Link
-              href="/organizers"
-              className="text-base font-medium text-neutral-500 hover:text-red-500"
-            >
-              Organizers
-            </Link>
-            <Link
-              href="/about"
-              className="text-base font-medium text-neutral-500 hover:text-red-500"
-            >
-              About
-            </Link>
+          <nav className="hidden md:flex items-center space-x-2">
+            {menuItems.map((item) =>
+              item.submenus.length > 0 ? (
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger>{item.name}</NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid grid-cols-2 w-[400px] gap-3 p-4 ">
+                          {item?.submenus.map((submenu) => (
+                            <NavigationMenuLink
+                              href={submenu.url}
+                              className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded cursor-pointer"
+                            >
+                              {submenu.name}
+                            </NavigationMenuLink>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+              ) : (
+                <>
+                  <Link
+                    key={item.name}
+                    href={item.url}
+                    className="hover:text-red-500 transition-all"
+                  >
+                    <Button variant="ghost">{item.name}</Button>
+                  </Link>
+                </>
+              )
+            )}
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
@@ -83,7 +119,7 @@ export default function Header() {
                     </Avatar>
                   </DropdownMenuTrigger>
 
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-64">
                     <DropdownMenuLabel>My Profile</DropdownMenuLabel>
                     <DropdownMenuSeparator />
 
@@ -150,24 +186,41 @@ export default function Header() {
                   </SheetTitle>
                   <SheetDescription>
                     <div className=" flex flex-col items-start">
-                      <Link
-                        href="/events"
-                        className="text-left font-medium p-2 rounded-lg hover:bg-red-200 dark:hover:bg-primary/10 w-full"
-                      >
-                        Events
-                      </Link>
-                      <Link
-                        href="/organizers"
-                        className="text-left font-medium p-2 rounded-lg hover:bg-red-200 dark:hover:bg-primary/10 w-full"
-                      >
-                        Organizers
-                      </Link>
-                      <Link
-                        href="/about"
-                        className="text-left font-medium p-2 rounded-lg hover:bg-red-200 dark:hover:bg-primary/10 w-full"
-                      >
-                        About
-                      </Link>
+                      {menuItems.map((item) =>
+                        item.submenus.length > 0 ? (
+                          <NavigationMenu>
+                            <NavigationMenuList>
+                              <NavigationMenuItem>
+                                <NavigationMenuTrigger>
+                                  {item.name}
+                                </NavigationMenuTrigger>
+                                <NavigationMenuContent>
+                                  <ul className="grid grid-cols-1 w-[200px] md:w-[400px] gap-3 p-4 ">
+                                    {item?.submenus.map((submenu) => (
+                                      <NavigationMenuLink
+                                        href={submenu.url}
+                                        className="hover:bg-neutral-100 text-left dark:hover:bg-neutral-800 p-3 rounded cursor-pointer"
+                                      >
+                                        {submenu.name}
+                                      </NavigationMenuLink>
+                                    ))}
+                                  </ul>
+                                </NavigationMenuContent>
+                              </NavigationMenuItem>
+                            </NavigationMenuList>
+                          </NavigationMenu>
+                        ) : (
+                          <>
+                            <Link
+                              key={item.name}
+                              href={item.url}
+                              className="hover:text-red-500 transition-all"
+                            >
+                              <Button variant="ghost">{item.name}</Button>
+                            </Link>
+                          </>
+                        )
+                      )}
                       <div className="flex items-center gap-2 my-4 w-full">
                         <ModeToggle />
                         {session ? (
