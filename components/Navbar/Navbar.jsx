@@ -59,7 +59,7 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-white dark:bg-neutral-950 shadow-sm dark:shadow-neutral-900 sticky top-0 z-10">
+    <header className="bg-blend-multiply backdrop-blur-md shadow-sm dark:shadow-neutral-900 sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center gap-2">
@@ -81,7 +81,7 @@ export default function Header() {
                             <NavigationMenuLink
                               key={i}
                               href={submenu.url}
-                              className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded cursor-pointer"
+                              className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded-md cursor-pointer"
                             >
                               {submenu.name}
                             </NavigationMenuLink>
@@ -96,7 +96,7 @@ export default function Header() {
                   <Link
                     key={i}
                     href={item.url}
-                    className="hover:text-red-500 transition-all"
+                    className="hover:text-rose-500 transition-all"
                   >
                     <Button variant="ghost">{item.name}</Button>
                   </Link>
@@ -176,7 +176,7 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent className="flex flex-col justify-between">
                 <SheetHeader>
-                  <SheetTitle className="text-2xl text-red-500 flex items-center gap-2">
+                  <SheetTitle className="text-2xl text-rose-600 flex items-center gap-2">
                     <Image
                       src={"/images/logo.png"}
                       alt="logo"
@@ -196,7 +196,7 @@ export default function Header() {
                                   {item.name}
                                 </NavigationMenuTrigger>
                                 <NavigationMenuContent>
-                                  <ul className="grid grid-cols-1 w-[200px] md:w-[400px] gap-3 p-4 ">
+                                  <ul className="grid grid-cols-1 w-[200px] gap-3 p-4 ">
                                     {item?.submenus.map((submenu, i) => (
                                       <NavigationMenuLink
                                         key={i}
@@ -216,7 +216,7 @@ export default function Header() {
                             <Link
                               key={i}
                               href={item.url}
-                              className="hover:text-red-500 transition-all"
+                              className="hover:text-rose-500 transition-all"
                             >
                               <Button variant="ghost">{item.name}</Button>
                             </Link>

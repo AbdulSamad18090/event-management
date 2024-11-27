@@ -11,7 +11,7 @@ export default function Testimonials() {
     ];
   
     return (
-      <section className="py-16 bg-neutral-100 dark:bg-neutral-900">
+      <section className="py-16 bg-muted/50">
         <div className="max-w-7xl mx-auto px-5">
           <h2 className="text-4xl text-neutral-900 dark:text-neutral-300 font-bold text-center mb-8">What Our Users Say</h2>
           <div className="grid md:grid-cols-2 gap-8">

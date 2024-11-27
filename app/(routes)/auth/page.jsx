@@ -28,7 +28,7 @@ export default function AuthPage() {
             height={100}
           />
           <CardTitle className="text-center text-2xl">
-            Welcome To <span className="text-red-500">Event Master</span>
+            Welcome To <span className="text-rose-600">Event Master</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -63,7 +63,7 @@ export default function AuthPage() {
               onClick={() =>
                 setActiveTab(activeTab === "login" ? "register" : "login")
               }
-              className="text-red-500 cursor-pointer hover:underline"
+              className="text-rose-500 cursor-pointer hover:underline"
             >
               {activeTab === "login" ? "Register here" : "Login here"}
             </span>
