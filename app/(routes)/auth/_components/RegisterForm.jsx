@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";  // Import useEffect
+import { useState, useEffect } from "react"; // Import useEffect
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -105,7 +105,7 @@ const RegisterForm = () => {
 
         // Automatically log the user in using next-auth's signIn method
         const signInRes = await signIn("credentials", {
-          redirectTo: "/dashboard",
+          redirect: false,
           email: formData.email,
           password: formData.password,
         });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
@@ -13,9 +13,25 @@ import {
 import Image from "next/image";
 import RegisterForm from "./_components/RegisterForm";
 import LoginForm from "./_components/LoginForm";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState("login");
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // UseEffect to redirect only after a successful login
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      // Check for role after authentication
+      if (session.user?.role === "organizer") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
+    }
+  }, [status, session, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 pt-5">

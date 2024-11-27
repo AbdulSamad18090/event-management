@@ -1,25 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
-import { signIn } from "next-auth/react"; // Ensure correct import from next-auth
+import { signIn, useSession } from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react"; // Ensure this is imported
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
-  // State to store form data
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
 
-  // Update formData state dynamically
+
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
@@ -28,13 +28,11 @@ const LoginForm = () => {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     const result = await signIn("credentials", {
-      // redirectTo: "/",
-      redirect: false, // Prevent automatic redirection
+      redirect: false,
       email: formData.email,
       password: formData.password,
     });
@@ -52,7 +50,6 @@ const LoginForm = () => {
       toast({
         title: "Login successful.",
       });
-      window.location.replace("/dashboard");
     }
   };
 
