@@ -11,6 +11,7 @@ import { signIn, useSession } from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import ForgotPasswordDialog from "./ForgotPasswordDialog";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,8 @@ const LoginForm = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-
+  const [isOpenForgotPasswordDialog, setIsOpenForgotPasswordDialog] =
+    useState(false);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -54,37 +56,49 @@ const LoginForm = () => {
   };
 
   return (
-    <TabsContent value="login">
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            required
-            value={formData.email}
-            onChange={handleInputChange}
-          />
-        </div>
-        <div>
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            required
-            value={formData.password}
-            onChange={handleInputChange}
-          />
-        </div>
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading && <Loader2 className="animate-spin" />}
-          {loading ? "Please Wait..." : "Login"}
-        </Button>
-      </form>
-      {/* <Separator className="my-4" /> */}
-      {/* <Button
+    <>
+      <TabsContent value="login">
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              required
+              value={formData.password}
+              onChange={handleInputChange}
+            />
+            <div className="w-full flex justify-end">
+              <Button
+                variant="link"
+                className=" my-0 text-sm"
+                onClick={() => {
+                  setIsOpenForgotPasswordDialog(true);
+                }}
+              >
+                Forgot Password
+              </Button>
+            </div>
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading && <Loader2 className="animate-spin" />}
+            {loading ? "Please Wait..." : "Login"}
+          </Button>
+        </form>
+        {/* <Separator className="my-4" /> */}
+        {/* <Button
         variant="secondary"
         className="w-full"
         onClick={() =>
@@ -94,7 +108,14 @@ const LoginForm = () => {
         <FcGoogle />
         Continue with Google
       </Button> */}
-    </TabsContent>
+      </TabsContent>
+      <ForgotPasswordDialog
+        isOpen={isOpenForgotPasswordDialog}
+        onClose={() => {
+          setIsOpenForgotPasswordDialog(false);
+        }}
+      />
+    </>
   );
 };
 
