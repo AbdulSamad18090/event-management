@@ -57,7 +57,7 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate the form before submitting
     if (!validateForm()) {
       return;
@@ -99,7 +99,9 @@ const LoginForm = () => {
               value={formData.email}
               onChange={handleInputChange}
             />
-            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
@@ -110,17 +112,18 @@ const LoginForm = () => {
               value={formData.password}
               onChange={handleInputChange}
             />
-            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password}</p>
+            )}
             <div className="w-full flex justify-end">
-              <Button
-                variant="link"
-                className=" my-0 text-sm"
+              <div
+                className="my-2 text-sm text-rose-600 hover:underline cursor-pointer"
                 onClick={() => {
                   setIsOpenForgotPasswordDialog(true);
                 }}
               >
                 Forgot Password
-              </Button>
+              </div>
             </div>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
