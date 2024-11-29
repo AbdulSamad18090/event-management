@@ -1,13 +1,21 @@
-import { CalendarPlus, Edit, MessageSquarePlus, UserPlus } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { CalendarPlus, Edit, MessageSquarePlus, UserPlus } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export function QuickActions() {
   return (
-    (<Card className='w-full'>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Quick Actions</CardTitle>
-        <CardDescription>Frequently used actions for event management</CardDescription>
+        <CardDescription>
+          Frequently used actions for event management
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2">
         <Button className="justify-start">
@@ -27,7 +35,6 @@ export function QuickActions() {
           Send Update
         </Button>
       </CardContent>
-    </Card>)
+    </Card>
   );
 }
-
