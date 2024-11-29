@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, LogOut, Menu } from "lucide-react";
+import { ExternalLink, LoaderCircle, LogOut, Menu } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/navigation-menu";
 
 export default function Header() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const menuItems = session
     ? session.user.role === "attendee"
@@ -69,38 +69,44 @@ export default function Header() {
             </Link>
           </div>
           <nav className="hidden md:flex items-center space-x-2">
-            {menuItems.map((item, i) =>
-              item.submenus.length > 0 ? (
-                <NavigationMenu key={i}>
-                  <NavigationMenuList>
-                    <NavigationMenuItem>
-                      <NavigationMenuTrigger>{item.name}</NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="grid grid-cols-2 w-[400px] gap-3 p-4 ">
-                          {item?.submenus.map((submenu, i) => (
-                            <NavigationMenuLink
-                              key={i}
-                              href={submenu.url}
-                              className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded-md cursor-pointer"
-                            >
-                              {submenu.name}
-                            </NavigationMenuLink>
-                          ))}
-                        </ul>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-                  </NavigationMenuList>
-                </NavigationMenu>
-              ) : (
-                <>
-                  <Link
-                    key={i}
-                    href={item.url}
-                    className="hover:text-rose-500 transition-all"
-                  >
-                    <Button variant="ghost">{item.name}</Button>
-                  </Link>
-                </>
+            {status === "loading" ? (
+              <LoaderCircle size={20} className="animate-spin" />
+            ) : (
+              menuItems.map((item, i) =>
+                item.submenus.length > 0 ? (
+                  <NavigationMenu key={i}>
+                    <NavigationMenuList>
+                      <NavigationMenuItem>
+                        <NavigationMenuTrigger>
+                          {item.name}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid grid-cols-2 w-[400px] gap-3 p-4 ">
+                            {item?.submenus.map((submenu, i) => (
+                              <NavigationMenuLink
+                                key={i}
+                                href={submenu.url}
+                                className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded-md cursor-pointer"
+                              >
+                                {submenu.name}
+                              </NavigationMenuLink>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    </NavigationMenuList>
+                  </NavigationMenu>
+                ) : (
+                  <>
+                    <Link
+                      key={i}
+                      href={item.url}
+                      className="hover:text-rose-500 transition-all"
+                    >
+                      <Button variant="ghost">{item.name}</Button>
+                    </Link>
+                  </>
+                )
               )
             )}
           </nav>
@@ -187,40 +193,44 @@ export default function Header() {
                   </SheetTitle>
                   <SheetDescription>
                     <div className=" flex flex-col items-start">
-                      {menuItems.map((item, i) =>
-                        item.submenus.length > 0 ? (
-                          <NavigationMenu key={i}>
-                            <NavigationMenuList>
-                              <NavigationMenuItem>
-                                <NavigationMenuTrigger>
-                                  {item.name}
-                                </NavigationMenuTrigger>
-                                <NavigationMenuContent>
-                                  <ul className="grid grid-cols-1 w-[200px] gap-3 p-4 ">
-                                    {item?.submenus.map((submenu, i) => (
-                                      <NavigationMenuLink
-                                        key={i}
-                                        href={submenu.url}
-                                        className="hover:bg-neutral-100 text-left dark:hover:bg-neutral-800 p-3 rounded cursor-pointer"
-                                      >
-                                        {submenu.name}
-                                      </NavigationMenuLink>
-                                    ))}
-                                  </ul>
-                                </NavigationMenuContent>
-                              </NavigationMenuItem>
-                            </NavigationMenuList>
-                          </NavigationMenu>
-                        ) : (
-                          <>
-                            <Link
-                              key={i}
-                              href={item.url}
-                              className="hover:text-rose-500 transition-all"
-                            >
-                              <Button variant="ghost">{item.name}</Button>
-                            </Link>
-                          </>
+                      {status === "loading" ? (
+                        <LoaderCircle />
+                      ) : (
+                        menuItems.map((item, i) =>
+                          item.submenus.length > 0 ? (
+                            <NavigationMenu key={i}>
+                              <NavigationMenuList>
+                                <NavigationMenuItem>
+                                  <NavigationMenuTrigger>
+                                    {item.name}
+                                  </NavigationMenuTrigger>
+                                  <NavigationMenuContent>
+                                    <ul className="grid grid-cols-1 w-[200px] gap-3 p-4 ">
+                                      {item?.submenus.map((submenu, i) => (
+                                        <NavigationMenuLink
+                                          key={i}
+                                          href={submenu.url}
+                                          className="hover:bg-neutral-100 text-left dark:hover:bg-neutral-800 p-3 rounded cursor-pointer"
+                                        >
+                                          {submenu.name}
+                                        </NavigationMenuLink>
+                                      ))}
+                                    </ul>
+                                  </NavigationMenuContent>
+                                </NavigationMenuItem>
+                              </NavigationMenuList>
+                            </NavigationMenu>
+                          ) : (
+                            <>
+                              <Link
+                                key={i}
+                                href={item.url}
+                                className="hover:text-rose-500 transition-all"
+                              >
+                                <Button variant="ghost">{item.name}</Button>
+                              </Link>
+                            </>
+                          )
                         )
                       )}
                       <div className="flex items-center gap-2 my-4 w-full">
