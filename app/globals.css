@@ -64,3 +64,29 @@ body {
     --chart-5: 340 75% 55%;
   }
 }
+
+
+/* Style the scrollbar container */
+.custom-scrollbar {
+  overflow: auto; /* Enable scrolling */
+}
+
+/* Style the scrollbar itself */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px; /* Set the width of the scrollbar */
+  height: 10px; /* Set the height of the horizontal scrollbar */
+}
+
+/* Style the scrollbar track (the background of the scrollbar) */
+.custom-scrollbar::-webkit-scrollbar-track {
+  border-radius: 10px; /* Optional: rounded corners */
+}
+
+/* Style the scrollbar thumb (the draggable part of the scrollbar) */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+/* Style the scrollbar thumb when hovered */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+}

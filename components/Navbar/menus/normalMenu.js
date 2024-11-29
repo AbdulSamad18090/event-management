@@ -1,7 +1,7 @@
 export const normalMenu = [
   {
     name: "Home",
-    url: "/home",
+    url: "/",
     submenus: [],
   },
   {

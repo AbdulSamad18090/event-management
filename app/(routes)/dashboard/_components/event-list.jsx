@@ -29,6 +29,48 @@ const events = [
     location: "New York, NY",
     attendees: 2000,
   },
+  {
+    id: "1",
+    name: "Tech Conference 2024",
+    date: "2024-06-15",
+    location: "San Francisco, CA",
+    attendees: 500,
+  },
+  {
+    id: "2",
+    name: "Music Festival",
+    date: "2024-07-20",
+    location: "Austin, TX",
+    attendees: 10000,
+  },
+  {
+    id: "3",
+    name: "Food & Wine Expo",
+    date: "2024-08-05",
+    location: "New York, NY",
+    attendees: 2000,
+  },
+  {
+    id: "1",
+    name: "Tech Conference 2024",
+    date: "2024-06-15",
+    location: "San Francisco, CA",
+    attendees: 500,
+  },
+  {
+    id: "2",
+    name: "Music Festival",
+    date: "2024-07-20",
+    location: "Austin, TX",
+    attendees: 10000,
+  },
+  {
+    id: "3",
+    name: "Food & Wine Expo",
+    date: "2024-08-05",
+    location: "New York, NY",
+    attendees: 2000,
+  },
 ];
 
 export function EventList({ className }) {
@@ -41,9 +83,12 @@ export function EventList({ className }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-8">
+        <div className="grid grid-cols-2 gap-4 h-[400px] overflow-y-auto custom-scrollbar">
           {events.map((event) => (
-            <div key={event.id} className="flex items-center">
+            <div
+              key={event.id}
+              className="flex items-center bg-muted p-4 rounded-lg border"
+            >
               <div className="space-y-1">
                 <p className="text-sm font-medium leading-none">{event.name}</p>
                 <div className="flex items-center pt-2">

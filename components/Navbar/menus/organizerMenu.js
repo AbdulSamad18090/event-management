@@ -6,7 +6,7 @@ export const organizerMenu = [
   },
   {
     name: "Create Event",
-    url: "/events/create",
+    url: "/events/new",
     submenus: [],
   },
   {
