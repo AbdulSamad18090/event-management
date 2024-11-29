@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,8 +19,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import AccessDenied from "@/components/AccessDenied/AccessDenied";
 
 const CreateEventPage = () => {
   const [step, setStep] = useState(1);
@@ -35,6 +38,9 @@ const CreateEventPage = () => {
       general: "",
     },
   });
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true); // Track loading state
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -53,6 +59,32 @@ const CreateEventPage = () => {
     e.preventDefault();
     console.log("Event Created:", eventData);
   };
+
+  useEffect(() => {
+    if (status === "loading") {
+      setLoading(true); // Wait until session is loaded
+    } else {
+      setLoading(false); // Set loading to false once session is ready
+      // if (!session || session?.user.role === "attendee") {
+      //   // Redirect users who are not authenticated or have "assignee" role
+      //   router.push("/"); // Uncomment this line if you want to redirect
+      // }
+    }
+  }, [session, status, router]);
+
+  // Show loading spinner until session is ready
+  if (loading) {
+    return (
+      <div className="w-full h-screen bg-muted flex justify-center items-center">
+        <LoaderCircle size={30} className="animate-spin" />
+      </div>
+    );
+  }
+
+  // If session exists but the user role is "assignee", show Access Denied page
+  if ((session && session?.user.role === "attendee") || !session) {
+    return <AccessDenied />; // Custom Access Denied page or message
+  }
 
   return (
     <div className="max-w-xl mx-auto mt-10">

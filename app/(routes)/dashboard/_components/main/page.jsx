@@ -36,7 +36,7 @@ export default function DashboardPage() {
   }
 
   // If session exists but the user role is "assignee", show Access Denied page
-  if (session && session?.user.role === "attendee") {
+  if ((session && session?.user.role === "attendee") || !session) {
     return <AccessDenied />; // Custom Access Denied page or message
   }
 
