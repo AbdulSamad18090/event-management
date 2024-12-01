@@ -87,7 +87,7 @@ export function EventList({ className }) {
           {events.map((event) => (
             <div
               key={event.id}
-              className="flex items-center bg-muted p-4 rounded-lg border"
+              className="flex items-center bg-card p-4 rounded-lg border border-border"
             >
               <div className="space-y-1">
                 <p className="text-sm font-medium leading-none">{event.name}</p>

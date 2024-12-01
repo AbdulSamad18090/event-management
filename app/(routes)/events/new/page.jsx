@@ -87,13 +87,13 @@ const CreateEventPage = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto mt-10">
+    <div className="max-w-xl mx-auto mt-10 px-4">
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink
               onClick={() => setStep(1)}
-              className={step === 1 ? "font-bold" : ""}
+              className={step === 1 ? "font-bold text-rose-600" : ""}
             >
               Event Details
             </BreadcrumbLink>
@@ -102,14 +102,16 @@ const CreateEventPage = () => {
           <BreadcrumbItem>
             <BreadcrumbLink
               onClick={() => step > 1 && setStep(2)}
-              className={step === 2 ? "font-bold" : ""}
+              className={step === 2 ? "font-bold text-rose-600" : ""}
             >
               Location & Dates
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className={step === 3 ? "font-bold" : ""}>
+            <BreadcrumbPage
+              className={step === 3 ? "font-bold text-rose-600" : ""}
+            >
               Pricing
             </BreadcrumbPage>
           </BreadcrumbItem>

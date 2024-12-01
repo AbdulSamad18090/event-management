@@ -83,13 +83,15 @@ export default function Header() {
                         <NavigationMenuContent>
                           <ul className="grid grid-cols-2 w-[400px] gap-3 p-4 ">
                             {item?.submenus.map((submenu, i) => (
-                              <NavigationMenuLink
+                              <Link
                                 key={i}
                                 href={submenu.url}
                                 className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded-md cursor-pointer"
                               >
-                                {submenu.name}
-                              </NavigationMenuLink>
+                                <NavigationMenuLink>
+                                  {submenu.name}
+                                </NavigationMenuLink>
+                              </Link>
                             ))}
                           </ul>
                         </NavigationMenuContent>
@@ -207,13 +209,15 @@ export default function Header() {
                                   <NavigationMenuContent>
                                     <ul className="grid grid-cols-1 w-[200px] gap-3 p-4 ">
                                       {item?.submenus.map((submenu, i) => (
-                                        <NavigationMenuLink
+                                        <Link
                                           key={i}
                                           href={submenu.url}
-                                          className="hover:bg-neutral-100 text-left dark:hover:bg-neutral-800 p-3 rounded cursor-pointer"
+                                          className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded-md cursor-pointer"
                                         >
-                                          {submenu.name}
-                                        </NavigationMenuLink>
+                                          <NavigationMenuLink>
+                                            {submenu.name}
+                                          </NavigationMenuLink>
+                                        </Link>
                                       ))}
                                     </ul>
                                   </NavigationMenuContent>

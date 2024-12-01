@@ -6,16 +6,16 @@ export const normalMenu = [
   },
   {
     name: "Events",
-    url: "/events",
+    url: "/events/browse",
     submenus: [
-      {
-        name: "Browse Events",
-        url: "/events/browse",
-      },
-      {
-        name: "Upcoming Events",
-        url: "/events/upcoming",
-      },
+      // {
+      //   name: "Browse Events",
+      //   url: "/events/browse",
+      // },
+      // {
+      //   name: "Upcoming Events",
+      //   url: "/events/upcoming",
+      // },
     ],
   },
   {
