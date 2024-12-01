@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,12 +16,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, Camera, Lock, User } from "lucide-react";
+import { Bell, Camera, LoaderCircle, Lock, User } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [avatarSrc, setAvatarSrc] = useState(
     "/placeholder.svg?height=100&width=100"
   );
+
+  useEffect(() => {
+    if (status !== "loading" && !session) {
+      router.push("/auth");
+    }
+  }, [session, status, router]);
 
   const handleAvatarChange = (event) => {
     const file = event.target.files?.[0];
@@ -31,6 +41,23 @@ export default function ProfilePage() {
       reader.readAsDataURL(file);
     }
   };
+
+  function getInitials(name) {
+    // Split the name into words and take the first letter of each word, then join them together.
+    const initials = name
+      .split(" ") // Split by space
+      .map((word) => word.charAt(0).toUpperCase()) // Get the first letter of each word
+      .join(""); // Join the initials together
+    return initials;
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="animate-spin w-12 h-12" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -52,8 +79,10 @@ export default function ProfilePage() {
               <div className="space-y-8">
                 <div className="flex items-center space-x-4">
                   <Avatar className="w-24 h-24">
-                    <AvatarImage src={avatarSrc} />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarImage src={session?.user?.image} />
+                    <AvatarFallback>
+                      {session && getInitials(session?.user?.name)}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <Button variant="outline" className="relative">
@@ -71,10 +100,11 @@ export default function ProfilePage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">First name</Label>
+                      <Label htmlFor="name">Name</Label>
                       <Input
-                        id="firstName"
-                        placeholder="Enter your first name"
+                        id="name"
+                        placeholder="Enter your name"
+                        value={session?.user?.name}
                       />
                     </div>
                     <div className="space-y-2">
@@ -84,12 +114,17 @@ export default function ProfilePage() {
                         type="email"
                         disabled="true"
                         placeholder="Enter your email"
+                        value={session?.user?.email}
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="bio">Bio</Label>
-                    <Textarea id="bio" placeholder="Tell us about yourself" />
+                    <Textarea
+                      id="bio"
+                      placeholder="Tell us about yourself"
+                      value={session?.user?.bio}
+                    />
                   </div>
                 </div>
               </div>

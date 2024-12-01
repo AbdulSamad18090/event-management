@@ -34,7 +34,7 @@ export default function AuthPage() {
   }, [status, session, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 pt-5">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 py-5">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="flex flex-col items-center">
           <Image
