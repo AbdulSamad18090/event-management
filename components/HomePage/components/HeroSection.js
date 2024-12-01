@@ -17,7 +17,7 @@ export default function HeroSection() {
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
         {(!session || session?.user.role !== "organizer") && (
           <Button asChild size="lg">
-            <Link href="/events">Browse Events</Link>
+            <Link href="/events/browse">Browse Events</Link>
           </Button>
         )}
         {session?.user.role === "organizer" && (
@@ -26,7 +26,7 @@ export default function HeroSection() {
               <Link href="/events/manage">Manage Events</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/events/create">Create Event</Link>
+              <Link href="/events/new">Create Event</Link>
             </Button>
           </>
         )}
