@@ -109,7 +109,7 @@ export default function UpcomingEvents() {
                   {chunk.map((event) => (
                     <Card
                       key={event.id}
-                      className="bg-muted/60 flex flex-col border-none justify-between"
+                      // className="bg-muted/60 flex flex-col border-none justify-between"
                     >
                       <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
                         <Image
@@ -117,7 +117,7 @@ export default function UpcomingEvents() {
                           alt={event.title}
                           width={600}
                           height={400}
-                          className="rounded-t-xl dark:bg-neutral-800"
+                          className="rounded-t-[0.9rem] dark:bg-neutral-800"
                         />
                       </CardHeader>
                       <CardContent className="mt-4">
