@@ -18,12 +18,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AccessDenied from "@/components/AccessDenied/AccessDenied";
+import { toast } from "@/hooks/use-toast";
 
 const CreateEventPage = () => {
   const [step, setStep] = useState(1);
@@ -40,39 +41,148 @@ const CreateEventPage = () => {
   });
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(true); // Track loading state
+  const [loading, setLoading] = useState(true);
 
+  // Improved handle input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "standard" || name === "vip" || name === "general") {
+      setEventData((prev) => ({
+        ...prev,
+        pricing: {
+          ...prev.pricing,
+          [name]: value,
+        },
+      }));
+    } else {
+      setEventData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  // Improved date range selection handler
+  const handleDateRangeSelect = (range) => {
+    // Ensure both from and to are valid dates or null
+    const newDateRange = {
+      from: range?.from && isValid(range.from) ? range.from : null,
+      to: range?.to && isValid(range.to) ? range.to : null,
+    };
+
     setEventData((prev) => ({
       ...prev,
-      ...(name.includes("pricing")
-        ? { pricing: { ...prev.pricing, [name.split(".")[1]]: value } }
-        : { [name]: value }),
+      dateRange: newDateRange,
     }));
   };
 
-  const handleNextStep = () => setStep((prev) => prev + 1);
-  const handlePrevStep = () => setStep((prev) => prev - 1);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Event Created:", eventData);
+  // Validate date range
+  const isValidDateRange = () => {
+    const { from, to } = eventData.dateRange;
+    return from && isValid(from) && (to ? isValid(to) : true);
   };
 
+  // Handle next step navigation with validation
+  const handleNextStep = () => {
+    if (step === 1) {
+      if (!eventData.eventName || !eventData.eventDescription) {
+        toast({
+          title: "Error",
+          description: "Please fill in all required fields for event details.",
+        });
+        return;
+      }
+    } else if (step === 2) {
+      if (!eventData.location || !isValidDateRange()) {
+        toast({
+          title: "Error",
+          description: "Please provide a valid location and date range.",
+        });
+        return;
+      }
+    } else if (step === 3) {
+      if (
+        !eventData.pricing.standard ||
+        !eventData.pricing.vip ||
+        !eventData.pricing.general
+      ) {
+        toast({
+          title: "Error",
+          description: "Please fill in all required fields for pricing.",
+        });
+        return;
+      }
+    }
+
+    // If all validations pass, go to next step
+    setStep((prev) => prev + 1);
+  };
+
+  // Rest of the code remains the same as in the previous implementation
+  const handlePrevStep = () => setStep((prev) => prev - 1);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/event/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: eventData.eventName,
+            description: eventData.eventDescription,
+            location: eventData.location,
+            date: {
+              from: eventData.dateRange.from?.toISOString(),
+              to: eventData.dateRange.to?.toISOString(),
+            },
+            pricing: eventData.pricing,
+            organizer: session?.user?.id,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const data = await res.json();
+        toast({
+          title: "Error",
+          description:
+            data?.message || "Something went wrong, please try again later.",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Event created successfully!",
+      });
+      router.push("/events/manage");
+    } catch (error) {
+      console.error("Error during submit:", error);
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description: "Please try again later.",
+      });
+    }
+  };
+
+  // Handle session loading state
   useEffect(() => {
     if (status === "loading") {
-      setLoading(true); // Wait until session is loaded
+      setLoading(true);
     } else {
-      setLoading(false); // Set loading to false once session is ready
-      // if (!session || session?.user.role === "attendee") {
-      //   // Redirect users who are not authenticated or have "assignee" role
-      //   router.push("/"); // Uncomment this line if you want to redirect
-      // }
+      setLoading(false);
+      if (!session || session?.user?.role === "attendee") {
+        router.push("/access-denied");
+      }
     }
   }, [session, status, router]);
 
-  // Show loading spinner until session is ready
+  // Loading state
   if (loading) {
     return (
       <div className="w-full h-screen bg-muted flex justify-center items-center">
@@ -81,19 +191,54 @@ const CreateEventPage = () => {
     );
   }
 
-  // If session exists but the user role is "assignee", show Access Denied page
+  // Access denied check
   if ((session && session?.user.role === "attendee") || !session) {
-    return <AccessDenied />; // Custom Access Denied page or message
+    return <AccessDenied />;
   }
+
+  // Pricing input helper
+  const renderPricingInput = (label, name) => (
+    <div>
+      <Label htmlFor={name}>{label}</Label>
+      <Input
+        type="number"
+        id={name}
+        name={name}
+        value={eventData.pricing[name]}
+        onChange={handleInputChange}
+        placeholder={`${label} price`}
+        min="0"
+        step="0.01"
+        className="mt-2"
+      />
+    </div>
+  );
+
+  // Render date range display text
+  const renderDateRangeText = () => {
+    const { from, to } = eventData.dateRange;
+    if (!from) return <span>Pick a date range</span>;
+
+    if (from && !to) return format(from, "PP");
+
+    if (from && to) return `${format(from, "PP")} - ${format(to, "PP")}`;
+
+    return <span>Pick a date range</span>;
+  };
 
   return (
     <div className="max-w-xl mx-auto mt-10 px-4">
       <Breadcrumb className="mb-6">
+        {/* Breadcrumb remains the same */}
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink
               onClick={() => setStep(1)}
-              className={step === 1 ? "font-bold text-rose-600" : ""}
+              className={
+                step === 1
+                  ? "font-bold text-rose-600 cursor-pointer"
+                  : "cursor-pointer"
+              }
             >
               Event Details
             </BreadcrumbLink>
@@ -102,7 +247,11 @@ const CreateEventPage = () => {
           <BreadcrumbItem>
             <BreadcrumbLink
               onClick={() => step > 1 && setStep(2)}
-              className={step === 2 ? "font-bold text-rose-600" : ""}
+              className={
+                step === 2
+                  ? "font-bold text-rose-600 cursor-pointer"
+                  : "cursor-pointer"
+              }
             >
               Location & Dates
             </BreadcrumbLink>
@@ -110,7 +259,11 @@ const CreateEventPage = () => {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage
-              className={step === 3 ? "font-bold text-rose-600" : ""}
+              className={
+                step === 3
+                  ? "font-bold text-rose-600 cursor-pointer"
+                  : "cursor-pointer"
+              }
             >
               Pricing
             </BreadcrumbPage>
@@ -119,6 +272,7 @@ const CreateEventPage = () => {
       </Breadcrumb>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Step 1: Event Details */}
         {step === 1 && (
           <>
             <div>
@@ -155,6 +309,7 @@ const CreateEventPage = () => {
           </>
         )}
 
+        {/* Step 2: Location & Dates */}
         {step === 2 && (
           <>
             <div>
@@ -181,29 +336,16 @@ const CreateEventPage = () => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {eventData.dateRange.from ? (
-                      eventData.dateRange.to ? (
-                        <>
-                          {format(eventData.dateRange.from, "PP")} -{" "}
-                          {format(eventData.dateRange.to, "PP")}
-                        </>
-                      ) : (
-                        format(eventData.dateRange.from, "PP")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
+                    {renderDateRangeText()}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     initialFocus
                     mode="range"
-                    defaultMonth={eventData.dateRange.from}
+                    defaultMonth={eventData.dateRange?.from}
                     selected={eventData.dateRange}
-                    onSelect={(range) =>
-                      setEventData((prev) => ({ ...prev, dateRange: range }))
-                    }
+                    onSelect={handleDateRangeSelect}
                     numberOfMonths={2}
                   />
                 </PopoverContent>
@@ -216,7 +358,7 @@ const CreateEventPage = () => {
               <Button
                 type="button"
                 onClick={handleNextStep}
-                disabled={!eventData.location || !eventData.dateRange.from}
+                disabled={!eventData.location || !isValidDateRange()}
               >
                 Next
               </Button>
@@ -224,52 +366,12 @@ const CreateEventPage = () => {
           </>
         )}
 
+        {/* Step 3: Pricing */}
         {step === 3 && (
           <>
-            <div>
-              <Label htmlFor="pricing.standard">Standard Ticket Price</Label>
-              <Input
-                type="number"
-                id="pricing.standard"
-                name="pricing.standard"
-                value={eventData.pricing.standard}
-                onChange={handleInputChange}
-                placeholder="Standard ticket price"
-                min="0"
-                step="0.01"
-                className="mt-2"
-              />
-            </div>
-            <div>
-              <Label htmlFor="pricing.vip">VIP Ticket Price</Label>
-              <Input
-                type="number"
-                id="pricing.vip"
-                name="pricing.vip"
-                value={eventData.pricing.vip}
-                onChange={handleInputChange}
-                placeholder="VIP ticket price"
-                min="0"
-                step="0.01"
-                className="mt-2"
-              />
-            </div>
-            <div>
-              <Label htmlFor="pricing.general">
-                General Admission Ticket Price
-              </Label>
-              <Input
-                type="number"
-                id="pricing.general"
-                name="pricing.general"
-                value={eventData.pricing.general}
-                onChange={handleInputChange}
-                placeholder="General admission ticket price"
-                min="0"
-                step="0.01"
-                className="mt-2"
-              />
-            </div>
+            {renderPricingInput("Standard Ticket", "standard")}
+            {renderPricingInput("VIP Ticket", "vip")}
+            {renderPricingInput("General Admission", "general")}
             <div className="flex justify-between">
               <Button type="button" variant="outline" onClick={handlePrevStep}>
                 Previous
