@@ -42,6 +42,7 @@ const CreateEventPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Improved handle input change
   const handleInputChange = (e) => {
@@ -124,6 +125,7 @@ const CreateEventPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/event/create`,
@@ -167,6 +169,8 @@ const CreateEventPage = () => {
         title: "Uh oh! Something went wrong.",
         description: "Please try again later.",
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -381,10 +385,17 @@ const CreateEventPage = () => {
                 disabled={
                   !eventData.pricing.standard ||
                   !eventData.pricing.vip ||
-                  !eventData.pricing.general
+                  !eventData.pricing.general ||
+                  submitting
                 }
               >
-                Create Event
+                {submitting ? (
+                  <>
+                    <LoaderCircle /> Please wait...
+                  </>
+                ) : (
+                  "Create Event"
+                )}
               </Button>
             </div>
           </>
