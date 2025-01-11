@@ -12,7 +12,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowRight, Eye, LoaderCircle, Pencil, Trash2 } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  CircleDollarSign,
+  Eye,
+  LoaderCircle,
+  MapPin,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -20,16 +29,36 @@ import AccessDenied from "@/components/AccessDenied/AccessDenied";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEventsOfOrganizer } from "@/lib/features/eventSlice";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const EventManagementPage = () => {
   const [editingEvent, setEditingEvent] = useState(null);
+  const [viewingEvent, setViewingEvent] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
   const dispatch = useDispatch();
-
   const { events, loading } = useSelector((state) => state.event);
+  const [searchText, setSearchText] = useState("");
 
-  console.log("Events =>", events);
+  console.log("viewing event =>", viewingEvent);
+
+  useEffect(() => {
+    AOS.init({
+      duration: 500, // Animation duration
+      once: true, // Animate only once
+      // disable: "mobile", // Disable on mobile devices (optional)
+    });
+  }, []);
 
   useEffect(() => {
     dispatch(fetchEventsOfOrganizer(session?.user?.id));
@@ -40,8 +69,9 @@ const EventManagementPage = () => {
     return date[0];
   };
 
-  const handleDeleteEvent = (id) => {};
-
+  const handleDeleteEvent = (id) => {
+    console.log("id: ", id);
+  };
   const handleEditEvent = () => {};
 
   // Show loading spinner until session is ready
@@ -53,10 +83,15 @@ const EventManagementPage = () => {
     );
   }
 
-  // If session exists but the user role is "assignee", show Access Denied page
+  // If session exists but the user role is "attendee", show Access Denied page
   if ((session && session?.user.role === "attendee") || !session) {
-    return <AccessDenied />; // Custom Access Denied page or message
+    return <AccessDenied />;
   }
+
+  // Close the dialog by setting viewingEvent to null
+  const closeDialog = () => {
+    setViewingEvent(null);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -65,49 +100,120 @@ const EventManagementPage = () => {
           <CardTitle>Manage Events</CardTitle>
         </CardHeader>
         <CardContent>
-          <Link href={"/events/new"}>
-            <Button>Create New Event</Button>
-          </Link>
-          {
-            // Show loading spinner until events are fetched
-            loading ? (
-              <div className="w-full h-32 flex justify-center items-center">
-                <LoaderCircle size={30} className="animate-spin" />
-              </div>
-            ) : (
-              <Table className="mt-4">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-72">Title</TableHead>
-                    <TableHead className="min-w-40">Description</TableHead>
-                    <TableHead className="min-w-40">Location</TableHead>
-                    <TableHead className="min-w-40">Date</TableHead>
-                    {/* <TableHead className="min-w-40">Status</TableHead> */}
-                    <TableHead className="min-w-40">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {events.map((event) => (
-                    <TableRow key={event?._id}>
+          <div className="flex items-center justify-between gap-4 flex-wrap w-full">
+            <Link href={"/events/new"}>
+              <Button>Create New Event</Button>
+            </Link>
+            <Input
+              type="search"
+              placeholder="Search your events..."
+              className="w-64"
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+              }}
+            />
+          </div>
+          {loading ? (
+            <div className="w-full h-32 flex justify-center items-center">
+              <LoaderCircle size={30} className="animate-spin" />
+            </div>
+          ) : (
+            <Table className="mt-4">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-72">Title</TableHead>
+                  <TableHead className="min-w-40">Description</TableHead>
+                  <TableHead className="min-w-40">Location</TableHead>
+                  <TableHead className="min-w-40">Date</TableHead>
+                  <TableHead className="min-w-40">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {events
+                  .filter((event) =>
+                    event.name.toLowerCase().includes(searchText.toLowerCase())
+                  )
+                  .map((event, i) => (
+                    <TableRow
+                      key={event?._id}
+                      data-aos="fade-left"
+                      data-aos-anchor="#example-anchor"
+                      data-aos-offset="500"
+                      data-aos-duration={i * 500}
+                    >
                       <TableCell>{event?.name}</TableCell>
                       <TableCell>{event?.description}</TableCell>
                       <TableCell>{event?.location}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Badge variant="outline" className="font-normal">{getDate(event?.date?.from)}</Badge>
+                          <Badge variant="outline" className="font-normal">
+                            {getDate(event?.date?.from)}
+                          </Badge>
                           <ArrowRight size={15} />
-                          <Badge className="font-normal">{getDate(event?.date?.to)}</Badge>
+                          <Badge className="font-normal">
+                            {getDate(event?.date?.to)}
+                          </Badge>
                         </div>
                       </TableCell>
                       <TableCell className="flex items-center gap-0">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="rounded-r-none"
-                          onClick={() => setEditingEvent(event)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="rounded-r-none"
+                              onClick={() => setViewingEvent(event)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-3xl p-6 rounded-lg shadow-lg">
+                            <DialogHeader>
+                              <DialogTitle className="text-2xl font-semibold">
+                                {event?.name}
+                              </DialogTitle>
+                            </DialogHeader>
+
+                            <div>
+                              <p>{event?.description}</p>
+                            </div>
+
+                            <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
+                              <h2 className="text-xl font-medium flex items-center gap-2">
+                                <MapPin className="text-red-600" />
+                                <span>{event?.location}</span>
+                              </h2>
+                              <div className="text-xl font-medium text-neutral-700 flex items-center gap-2">
+                                <h2>
+                                  <CircleDollarSign className="text-green-600" />
+                                </h2>
+                                <div className="flex space-x-4">
+                                  <Badge className="bg-gray-200 text-neutral-700">
+                                    {event?.pricing?.general}
+                                  </Badge>
+                                  <Badge className="bg-blue-200 text-blue-700">
+                                    {event?.pricing?.standard}
+                                  </Badge>
+                                  <Badge className="bg-purple-200 text-purple-700">
+                                    {event?.pricing?.vip}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div className="font-medium text-neutral-700 flex items-center gap-2">
+                                <h2 className="font-medium text-neutral-700">
+                                  <CalendarDays className="text-blue-600 text-xl" />
+                                </h2>
+                                <p>
+                                  <Badge variant="outline">
+                                    {getDate(event?.date?.from)}
+                                  </Badge>{" "}
+                                  to <Badge>{getDate(event?.date?.to)}</Badge>
+                                </p>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
 
                         <Button
                           variant="outline"
@@ -118,21 +224,49 @@ const EventManagementPage = () => {
                           <Pencil className="h-4 w-4" />
                         </Button>
 
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="rounded-l-none"
-                          onClick={() => handleDeleteEvent(event.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="rounded-l-none"
+                              onClick={() => handleDeleteEvent(event.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Are you shure you cant to delete the event?
+                              </DialogTitle>
+                              <DialogDescription>
+                                This action will delete the event permanently.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button size="sm" variant="secondary">
+                                  Close
+                                </Button>
+                              </DialogClose>
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  handleDeleteEvent(event?._id);
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </TableCell>
                     </TableRow>
                   ))}
-                </TableBody>
-              </Table>
-            )
-          }
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

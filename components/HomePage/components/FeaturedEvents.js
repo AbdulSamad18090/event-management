@@ -67,9 +67,9 @@ export default function FeaturedEvents() {
   // Initialize AOS when the component mounts
   useEffect(() => {
     AOS.init({
-      duration: 500, // Animation duration
+      duration: 1000, // Animation duration
       once: true, // Animate only once
-      disable: "mobile", // Disable on mobile devices (optional)
+      // disable: "mobile", // Disable on mobile devices (optional)
     });
   }, []);
 
