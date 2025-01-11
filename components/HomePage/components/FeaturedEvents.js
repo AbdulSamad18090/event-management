@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -14,6 +17,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // Events Data
 const events = [
@@ -59,10 +64,22 @@ const chunkEvents = (array, size) => {
 export default function FeaturedEvents() {
   const eventChunks = chunkEvents(events, 2); // Split events into chunks of 2
 
+  // Initialize AOS when the component mounts
+  useEffect(() => {
+    AOS.init({
+      duration: 500, // Animation duration
+      once: true, // Animate only once
+      disable: "mobile", // Disable on mobile devices (optional)
+    });
+  }, []);
+
   return (
     <section className="py-16 bg-muted/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-300 mb-8">
+        <h2
+          className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-300 mb-8"
+          data-aos="fade-right" // Animation for section title
+        >
           Featured Events
         </h2>
 
@@ -75,6 +92,8 @@ export default function FeaturedEvents() {
                     <div
                       className="flex gap-4 bg-white dark:bg-neutral-900 shadow-md rounded-lg"
                       key={i}
+                      data-aos="fade-up" // Fade-up animation for each event
+                      data-aos-delay={i * 100} // Stagger the animation
                     >
                       <Image
                         src={event.image}
@@ -96,27 +115,6 @@ export default function FeaturedEvents() {
                         <Button size="sm">View Details</Button>
                       </div>
                     </div>
-                    // <Card key={event.id}>
-                    //   <CardHeader>
-                    //     <Image
-                    //       src={event.image}
-                    //       alt={event.title}
-                    //       width={600}
-                    //       height={400}
-                    //       className="rounded-t-lg"
-                    //     />
-                    //   </CardHeader>
-                    //   <CardContent>
-                    //     <CardTitle>{event.title}</CardTitle>
-                    //     <p className="text-sm text-neutral-500 mt-2">
-                    //       {event.date}
-                    //     </p>
-                    //     <p className="text-sm text-neutral-500">{event.location}</p>
-                    //   </CardContent>
-                    //   <CardFooter>
-                    //     <Button className="w-full">View Details</Button>
-                    //   </CardFooter>
-                    // </Card>
                   ))}
                 </div>
               </CarouselItem>
@@ -127,7 +125,9 @@ export default function FeaturedEvents() {
         </Carousel>
 
         <div className="flex justify-center mt-10">
-          <Button>Browse All Events</Button>
+          <Button data-aos="fade-up" data-aos-delay="500">
+            Browse All Events
+          </Button>
         </div>
       </div>
     </section>

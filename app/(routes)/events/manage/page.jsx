@@ -12,56 +12,40 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { LoaderCircle, Pencil, Trash2 } from "lucide-react";
+import { ArrowRight, Eye, LoaderCircle, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AccessDenied from "@/components/AccessDenied/AccessDenied";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchEventsOfOrganizer } from "@/lib/features/eventSlice";
+import { Badge } from "@/components/ui/badge";
 
 const EventManagementPage = () => {
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: "Team Building Workshop",
-      date: "2024-02-15",
-      status: "Planned",
-      description: "Annual team building event",
-    },
-  ]);
   const [editingEvent, setEditingEvent] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(true); // Track loading state
+  const dispatch = useDispatch();
 
-  const handleDeleteEvent = (id) => {
-    setEvents(events.filter((event) => event.id !== id));
-  };
+  const { events, loading } = useSelector((state) => state.event);
 
-  const handleEditEvent = () => {
-    if (!editingEvent) return;
-
-    setEvents(
-      events.map((event) =>
-        event.id === editingEvent.id ? editingEvent : event
-      )
-    );
-    setEditingEvent(null);
-  };
+  console.log("Events =>", events);
 
   useEffect(() => {
-    if (status === "loading") {
-      setLoading(true); // Wait until session is loaded
-    } else {
-      setLoading(false); // Set loading to false once session is ready
-      // if (!session || session?.user.role === "attendee") {
-      //   // Redirect users who are not authenticated or have "assignee" role
-      //   router.push("/"); // Uncomment this line if you want to redirect
-      // }
-    }
-  }, [session, status, router]);
+    dispatch(fetchEventsOfOrganizer(session?.user?.id));
+  }, [dispatch, session?.user?.id]);
+
+  const getDate = (timestamp) => {
+    const date = timestamp.split("T");
+    return date[0];
+  };
+
+  const handleDeleteEvent = (id) => {};
+
+  const handleEditEvent = () => {};
 
   // Show loading spinner until session is ready
-  if (loading) {
+  if (status === "loading") {
     return (
       <div className="w-full h-screen bg-muted flex justify-center items-center">
         <LoaderCircle size={30} className="animate-spin" />
@@ -84,46 +68,71 @@ const EventManagementPage = () => {
           <Link href={"/events/new"}>
             <Button>Create New Event</Button>
           </Link>
+          {
+            // Show loading spinner until events are fetched
+            loading ? (
+              <div className="w-full h-32 flex justify-center items-center">
+                <LoaderCircle size={30} className="animate-spin" />
+              </div>
+            ) : (
+              <Table className="mt-4">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-72">Title</TableHead>
+                    <TableHead className="min-w-40">Description</TableHead>
+                    <TableHead className="min-w-40">Location</TableHead>
+                    <TableHead className="min-w-40">Date</TableHead>
+                    {/* <TableHead className="min-w-40">Status</TableHead> */}
+                    <TableHead className="min-w-40">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {events.map((event) => (
+                    <TableRow key={event?._id}>
+                      <TableCell>{event?.name}</TableCell>
+                      <TableCell>{event?.description}</TableCell>
+                      <TableCell>{event?.location}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Badge variant="outline" className="font-normal">{getDate(event?.date?.from)}</Badge>
+                          <ArrowRight size={15} />
+                          <Badge className="font-normal">{getDate(event?.date?.to)}</Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="flex items-center gap-0">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="rounded-r-none"
+                          onClick={() => setEditingEvent(event)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
 
-          <Table className="mt-4">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="min-w-72">Title</TableHead>
-                <TableHead className="min-w-40">Date</TableHead>
-                <TableHead className="min-w-40">Status</TableHead>
-                <TableHead className="min-w-40">Description</TableHead>
-                <TableHead className="min-w-40">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {events.map((event) => (
-                <TableRow key={event.id}>
-                  <TableCell>{event.title}</TableCell>
-                  <TableCell>{event.date}</TableCell>
-                  <TableCell>{event.status}</TableCell>
-                  <TableCell>{event.description}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setEditingEvent(event)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="rounded-none border-l-0 border-r-0"
+                          onClick={() => setEditingEvent(event)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
 
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="ml-2"
-                      onClick={() => handleDeleteEvent(event.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="rounded-l-none"
+                          onClick={() => handleDeleteEvent(event.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )
+          }
         </CardContent>
       </Card>
     </div>

@@ -391,7 +391,7 @@ const CreateEventPage = () => {
               >
                 {submitting ? (
                   <>
-                    <LoaderCircle /> Please wait...
+                    <LoaderCircle className="animate-spin" /> Please wait...
                   </>
                 ) : (
                   "Create Event"

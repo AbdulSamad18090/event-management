@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -14,7 +17,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { useEffect, useState } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 // Events Data
 const events = [
@@ -89,6 +93,13 @@ export default function UpcomingEvents() {
     updateChunkSize(); // Set initial chunk size
     window.addEventListener("resize", updateChunkSize);
 
+    // Initialize AOS when the component mounts
+    AOS.init({
+      duration: 1000, // Animation duration
+      once: true, // Animate only once
+      disable: "mobile", // Disable on mobile devices (optional)
+    });
+
     return () => {
       window.removeEventListener("resize", updateChunkSize);
     };
@@ -97,7 +108,10 @@ export default function UpcomingEvents() {
   return (
     <section className="py-16 bg-muted/0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-300 mb-8">
+        <h2
+          className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-300 mb-8"
+          data-aos="fade-right" // Animation for section title
+        >
           Upcoming Events
         </h2>
 
@@ -106,35 +120,38 @@ export default function UpcomingEvents() {
             {eventChunks.map((chunk, index) => (
               <CarouselItem key={index}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
-                  {chunk.map((event) => (
-                    <Card
+                  {chunk.map((event, index) => (
+                    <div
                       key={event.id}
-                      // className="bg-muted/60 flex flex-col border-none justify-between"
+                      data-aos="fade-up" // Fade-in animation for each event card
+                      data-aos-delay={index * 200} // Add a delay to stagger the animations
                     >
-                      <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
-                        <Image
-                          src={event.image}
-                          alt={event.title}
-                          width={600}
-                          height={400}
-                          className="rounded-t-[0.9rem] dark:bg-neutral-800"
-                        />
-                      </CardHeader>
-                      <CardContent className="mt-4">
-                        <CardTitle className="text-lg md:text-xl">
-                          {event.title}
-                        </CardTitle>
-                        <p className="text-sm text-neutral-500 mt-2">
-                          {event.date}
-                        </p>
-                        <p className="text-sm text-neutral-500">
-                          {event.location}
-                        </p>
-                      </CardContent>
-                      <CardFooter>
-                        <Button className="w-full">View Details</Button>
-                      </CardFooter>
-                    </Card>
+                      <Card>
+                        <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
+                          <Image
+                            src={event.image}
+                            alt={event.title}
+                            width={600}
+                            height={400}
+                            className="rounded-t-[0.9rem] dark:bg-neutral-800"
+                          />
+                        </CardHeader>
+                        <CardContent className="mt-4">
+                          <CardTitle className="text-lg md:text-xl">
+                            {event.title}
+                          </CardTitle>
+                          <p className="text-sm text-neutral-500 mt-2">
+                            {event.date}
+                          </p>
+                          <p className="text-sm text-neutral-500">
+                            {event.location}
+                          </p>
+                        </CardContent>
+                        <CardFooter>
+                          <Button className="w-full">View Details</Button>
+                        </CardFooter>
+                      </Card>
+                    </div>
                   ))}
                 </div>
               </CarouselItem>
@@ -144,7 +161,11 @@ export default function UpcomingEvents() {
           <CarouselNext />
         </Carousel>
 
-        <div className="flex justify-center mt-10">
+        <div
+          className="flex justify-center mt-10"
+          data-aos="fade-up" // Fade-in animation for the Browse All Events button
+          data-aos-delay="500" // Delay the button animation
+        >
           <Button>Browse All Events</Button>
         </div>
       </div>

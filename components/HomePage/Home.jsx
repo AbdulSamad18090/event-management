@@ -7,12 +7,12 @@ import UpcomingEvents from "./components/UpcomingEvents";
 
 export default function Home() {
   return (
-    <>
+    <div className="overflow-x-hidden">
       <HeroSection />
       <FeaturedEvents />
       <UpcomingEvents />
       <Testimonials />
       <CTA />
-    </>
+    </div>
   );
 }
