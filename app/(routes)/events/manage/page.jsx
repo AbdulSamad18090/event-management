@@ -27,7 +27,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AccessDenied from "@/components/AccessDenied/AccessDenied";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEventsOfOrganizer } from "@/lib/features/eventSlice";
+import { deleteEvent, fetchEventsOfOrganizer } from "@/lib/features/eventSlice";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -40,6 +40,7 @@ import {
 import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { toast } from "@/hooks/use-toast";
 
 const EventManagementPage = () => {
   const [editingEvent, setEditingEvent] = useState(null);
@@ -49,8 +50,10 @@ const EventManagementPage = () => {
   const dispatch = useDispatch();
   const { events, loading } = useSelector((state) => state.event);
   const [searchText, setSearchText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  console.log("viewing event =>", viewingEvent);
+  // console.log("viewing event =>", viewingEvent);
+  // console.log("event =>", events);
 
   useEffect(() => {
     AOS.init({
@@ -69,9 +72,36 @@ const EventManagementPage = () => {
     return date[0];
   };
 
-  const handleDeleteEvent = (id) => {
-    console.log("id: ", id);
+  const handleDeleteEvent = async (id) => {
+    try {
+      setIsDeleting(true);
+
+      // Dispatch the delete action and await its result
+      const res = await dispatch(deleteEvent(id)).unwrap();
+
+      if (res?.deletedEvent) {
+        toast({
+          title: "Event deleted successfully.",
+          status: "success",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Failed to delete event.",
+          description: "The event might not exist or was already deleted.",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Failed to delete event.",
+        description: error.message || "An unexpected error occurred.",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
+
   const handleEditEvent = () => {};
 
   // Show loading spinner until session is ready
@@ -125,7 +155,7 @@ const EventManagementPage = () => {
                   <TableHead className="min-w-72">Title</TableHead>
                   <TableHead className="min-w-40">Description</TableHead>
                   <TableHead className="min-w-40">Location</TableHead>
-                  <TableHead className="min-w-40">Date</TableHead>
+                  <TableHead className="min-w-60">Date</TableHead>
                   <TableHead className="min-w-40">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -230,7 +260,6 @@ const EventManagementPage = () => {
                               variant="outline"
                               size="icon"
                               className="rounded-l-none"
-                              onClick={() => handleDeleteEvent(event.id)}
                             >
                               <Trash2 className="h-4 w-4 text-red-500" />
                             </Button>
@@ -252,11 +281,18 @@ const EventManagementPage = () => {
                               </DialogClose>
                               <Button
                                 size="sm"
+                                disabled={isDeleting}
                                 onClick={() => {
                                   handleDeleteEvent(event?._id);
                                 }}
                               >
-                                Delete
+                                {isDeleting ? (
+                                  <LoaderCircle
+                                    className="animate-spin"
+                                    size={10}
+                                  />
+                                ) : null}
+                                {isDeleting ? "Deleting..." : "Delete"}
                               </Button>
                             </DialogFooter>
                           </DialogContent>
