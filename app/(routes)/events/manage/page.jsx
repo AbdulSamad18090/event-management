@@ -96,6 +96,15 @@ const EventManagementPage = () => {
     return date.toISOString().split("T")[0]; // Return only the date part in YYYY-MM-DD format
   };
 
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(date);
+  };
+
   const renderDateRangeText = () => {
     if (!editingEvent?.date) return <span>Pick a date range</span>;
 
@@ -224,11 +233,14 @@ const EventManagementPage = () => {
             <Table className="mt-4">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-72">Title</TableHead>
-                  <TableHead className="min-w-40">Description</TableHead>
-                  <TableHead className="min-w-40">Location</TableHead>
-                  <TableHead className="min-w-60">Date</TableHead>
-                  <TableHead className="min-w-40">Actions</TableHead>
+                  <TableHead className="min-w-60">Title</TableHead>
+                  <TableHead className="min-w-72">Description</TableHead>
+                  <TableHead className="min-w-52">Location</TableHead>
+                  <TableHead className="min-w-64">Date</TableHead>
+                  <TableHead className="min-w-40">Last Modified</TableHead>
+                  <TableHead className="min-w-40 sticky right-0 bg-blend-multiply backdrop-blur-md border-l border-border z-10">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -245,20 +257,29 @@ const EventManagementPage = () => {
                       data-aos-duration={i * 500}
                     >
                       <TableCell>{event?.name}</TableCell>
-                      <TableCell>{event?.description}</TableCell>
-                      <TableCell>{event?.location}</TableCell>
+                      <TableCell>
+                        <div className="custom-line-clamp-1 w-[285px]">
+                          {event?.description}
+                        </div>
+                      </TableCell>
+                      <TableCell className="flex items-center gap-1">
+                        <MapPin className="text-rose-600" size={15} />
+                        {event?.location}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
+                          <CalendarDays className="text-rose-600" size={15} />
                           <Badge variant="outline" className="font-normal">
-                            {getDate(event?.date?.from)}
+                            {formatTimestamp(event?.date?.from)}
                           </Badge>
                           <ArrowRight size={15} />
                           <Badge className="font-normal">
-                            {getDate(event?.date?.to)}
+                            {formatTimestamp(event?.date?.to)}
                           </Badge>
                         </div>
                       </TableCell>
-                      <TableCell className="flex items-center gap-0">
+                      <TableCell>{formatTimestamp(event?.updatedAt)}</TableCell>
+                      <TableCell className="sticky right-0 bg-blend-multiply backdrop-blur-md z-10 border-l border-border flex items-center gap-0">
                         <Dialog>
                           <DialogTrigger>
                             <Button

@@ -90,3 +90,10 @@ body {
 /* Style the scrollbar thumb when hovered */
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
 }
+
+
+.custom-line-clamp-1 {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
