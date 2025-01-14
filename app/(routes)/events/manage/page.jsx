@@ -28,7 +28,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AccessDenied from "@/components/AccessDenied/AccessDenied";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteEvent, fetchEventsOfOrganizer } from "@/lib/features/eventSlice";
+import {
+  deleteEvent,
+  fetchEventsOfOrganizer,
+  updateEvent,
+} from "@/lib/features/eventSlice";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -68,10 +72,11 @@ const EventManagementPage = () => {
   const { events, loading } = useSelector((state) => state.event);
   const [searchText, setSearchText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // console.log("viewing event =>", viewingEvent);
   // console.log("event =>", events);
-  console.log("editing event => ", editingEvent);
+  // console.log("editing event => ", editingEvent);
 
   useEffect(() => {
     AOS.init({
@@ -147,7 +152,29 @@ const EventManagementPage = () => {
     }
   };
 
-  const handleUpdateEvent = async (id) => {};
+  const handleUpdateEvent = async (id) => {
+    try {
+      setIsUpdating(true);
+      const res = await dispatch(
+        updateEvent({ id: id, event: editingEvent })
+      ).unwrap();
+      if (res.updatedEvent) {
+        toast({
+          title: "Event updated successfully.",
+          status: "success",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Failed to updated event.",
+          description: error.message || "An unexpected error occurred.",
+        });
+      }
+    } catch (error) {
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   // Show loading spinner until session is ready
   if (status === "loading") {
@@ -313,7 +340,7 @@ const EventManagementPage = () => {
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid md:grid-cols-2 grid-cols-1 gap-3 p-1 w-full max-h-[250px] overflow-y-auto custom-scrollbar">
-                              <div className="col-span-2 bg-accent rounded-lg p-4 border border-border">
+                              <div className="md:col-span-2 bg-accent/40 rounded-lg p-4 border border-border">
                                 <h1 className="text-lg font-semibold">
                                   Basic Information
                                 </h1>
@@ -348,7 +375,7 @@ const EventManagementPage = () => {
                                   />
                                 </div>
                               </div>
-                              <div className="bg-accent rounded-lg p-4 border border-border">
+                              <div className="bg-accent/40 w-full rounded-lg p-4 border border-border">
                                 <h1 className="text-lg font-semibold">
                                   Date & Location
                                 </h1>
@@ -397,7 +424,7 @@ const EventManagementPage = () => {
                                   </Popover>
                                 </div>
                               </div>
-                              <div className="bg-accent rounded-lg p-4 border border-border">
+                              <div className="bg-accent/40 w-full rounded-lg p-4 border border-border">
                                 <h1 className="text-lg font-semibold">
                                   Pricing
                                 </h1>
@@ -438,7 +465,6 @@ const EventManagementPage = () => {
                             <DialogFooter>
                               <DialogClose asChild>
                                 <Button
-                                  size="sm"
                                   variant="secondary"
                                   onClick={() => setEditingEvent(null)}
                                 >
@@ -446,10 +472,16 @@ const EventManagementPage = () => {
                                 </Button>
                               </DialogClose>
                               <Button
-                                size="sm"
-                                onClick={() => handleUpdateEvent()}
+                                disabled={
+                                  JSON.stringify(event) ===
+                                    JSON.stringify(editingEvent) || isUpdating
+                                }
+                                onClick={() => handleUpdateEvent(event?._id)}
                               >
-                                Update
+                                {isUpdating && (
+                                  <LoaderCircle className="animate-spin" />
+                                )}
+                                {isUpdating ? "Please wait..." : "Update"}
                               </Button>
                             </DialogFooter>
                           </DialogContent>
