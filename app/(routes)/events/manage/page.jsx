@@ -15,6 +15,7 @@ import {
 import {
   ArrowRight,
   CalendarDays,
+  CalendarIcon,
   CircleDollarSign,
   Eye,
   LoaderCircle,
@@ -41,9 +42,25 @@ import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { toast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format, isValid } from "date-fns";
 
 const EventManagementPage = () => {
-  const [editingEvent, setEditingEvent] = useState(null);
+  const [editingEvent, setEditingEvent] = useState({
+    name: "",
+    description: "",
+    location: "",
+    date: { from: null, to: null },
+    pricing: { standard: 0, vip: 0, general: 0 },
+  });
+
   const [viewingEvent, setViewingEvent] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -54,6 +71,7 @@ const EventManagementPage = () => {
 
   // console.log("viewing event =>", viewingEvent);
   // console.log("event =>", events);
+  console.log("editing event => ", editingEvent);
 
   useEffect(() => {
     AOS.init({
@@ -68,8 +86,35 @@ const EventManagementPage = () => {
   }, [dispatch, session?.user?.id]);
 
   const getDate = (timestamp) => {
-    const date = timestamp.split("T");
-    return date[0];
+    const date = new Date(timestamp);
+    date.setDate(date.getDate() + 1); // Add one day
+    return date.toISOString().split("T")[0]; // Return only the date part in YYYY-MM-DD format
+  };
+
+  const renderDateRangeText = () => {
+    if (!editingEvent?.date) return <span>Pick a date range</span>;
+
+    const { from, to } = editingEvent.date;
+    if (!from) return <span>Pick a date range</span>;
+
+    if (from && !to) return format(from, "PP");
+
+    if (from && to) return `${format(from, "PP")} - ${format(to, "PP")}`;
+
+    return <span>Pick a date range</span>;
+  };
+
+  const handleDateRangeSelect = (range) => {
+    // Ensure both from and to are valid dates or null
+    const newDateRange = {
+      from: range?.from && isValid(range.from) ? range.from : null,
+      to: range?.to && isValid(range.to) ? range.to : null,
+    };
+
+    setEditingEvent((prev) => ({
+      ...prev,
+      date: newDateRange,
+    }));
   };
 
   const handleDeleteEvent = async (id) => {
@@ -102,7 +147,7 @@ const EventManagementPage = () => {
     }
   };
 
-  const handleEditEvent = () => {};
+  const handleUpdateEvent = async (id) => {};
 
   // Show loading spinner until session is ready
   if (status === "loading") {
@@ -245,14 +290,170 @@ const EventManagementPage = () => {
                           </DialogContent>
                         </Dialog>
 
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="rounded-none border-l-0 border-r-0"
-                          onClick={() => setEditingEvent(event)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="rounded-none border-l-0 border-r-0"
+                              onClick={() => setEditingEvent(event)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl">
+                            <DialogHeader>
+                              <DialogTitle>Edit</DialogTitle>
+                              <DialogDescription>
+                                You are editing{" "}
+                                <span className="font-semibold text-rose-500">
+                                  {event?.name}
+                                </span>{" "}
+                                event
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-3 p-1 w-full max-h-[250px] overflow-y-auto custom-scrollbar">
+                              <div className="col-span-2 bg-accent rounded-lg p-4 border border-border">
+                                <h1 className="text-lg font-semibold">
+                                  Basic Information
+                                </h1>
+                                <div className="mb-2">
+                                  <Label htmlFor="name">Event name</Label>
+                                  <Input
+                                    id="name"
+                                    placeholder="Event name"
+                                    value={editingEvent?.name}
+                                    onChange={(e) =>
+                                      setEditingEvent({
+                                        ...editingEvent,
+                                        name: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                                <div className="mb-2">
+                                  <Label htmlFor="description">
+                                    Description
+                                  </Label>
+                                  <Textarea
+                                    id="description"
+                                    placeholder="Event description"
+                                    value={editingEvent?.description}
+                                    onChange={(e) =>
+                                      setEditingEvent({
+                                        ...editingEvent,
+                                        description: e.target.value,
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </div>
+                              <div className="bg-accent rounded-lg p-4 border border-border">
+                                <h1 className="text-lg font-semibold">
+                                  Date & Location
+                                </h1>
+                                <div className="mb-2">
+                                  <Label htmlFor="location">Location</Label>
+                                  <Input
+                                    type="text"
+                                    id="location"
+                                    name="location"
+                                    value={editingEvent?.location}
+                                    onChange={(e) =>
+                                      setEditingEvent({
+                                        ...editingEvent,
+                                        location: e.target.value,
+                                      })
+                                    }
+                                    placeholder="Enter event location"
+                                  />
+                                </div>
+                                <div>
+                                  <Label>Event Date Range</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                          "w-full justify-start text-left font-normal mt-2",
+                                          !event.date.from &&
+                                            "text-muted-foreground"
+                                        )}
+                                      >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {renderDateRangeText()}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                      <Calendar
+                                        initialFocus
+                                        mode="range"
+                                        defaultMonth={editingEvent?.date?.from}
+                                        selected={editingEvent?.date}
+                                        onSelect={handleDateRangeSelect}
+                                        numberOfMonths={2}
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              </div>
+                              <div className="bg-accent rounded-lg p-4 border border-border">
+                                <h1 className="text-lg font-semibold">
+                                  Pricing
+                                </h1>
+                                {["Standard", "VIP", "General"].map(
+                                  (category, i) => (
+                                    <div key={i} className="mb-2">
+                                      <Label htmlFor={category}>
+                                        {category}
+                                      </Label>
+                                      <Input
+                                        type="number"
+                                        id={category}
+                                        name={category}
+                                        value={
+                                          editingEvent?.pricing[
+                                            category.toLowerCase()
+                                          ] || ""
+                                        }
+                                        onChange={(e) =>
+                                          setEditingEvent({
+                                            ...editingEvent,
+                                            pricing: {
+                                              ...editingEvent.pricing,
+                                              [category.toLowerCase()]:
+                                                e.target.value,
+                                            },
+                                          })
+                                        }
+                                        placeholder={`${category} price`}
+                                        min="0"
+                                        step="10"
+                                      />
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  onClick={() => setEditingEvent(null)}
+                                >
+                                  Cancel
+                                </Button>
+                              </DialogClose>
+                              <Button
+                                size="sm"
+                                onClick={() => handleUpdateEvent()}
+                              >
+                                Update
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
 
                         <Dialog>
                           <DialogTrigger>
@@ -267,7 +468,7 @@ const EventManagementPage = () => {
                           <DialogContent>
                             <DialogHeader>
                               <DialogTitle>
-                                Are you shure you cant to delete the event?
+                                Are you shure you want to delete the event?
                               </DialogTitle>
                               <DialogDescription>
                                 This action will delete the event permanently.
