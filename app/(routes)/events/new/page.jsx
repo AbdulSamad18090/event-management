@@ -25,6 +25,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AccessDenied from "@/components/AccessDenied/AccessDenied";
 import { toast } from "@/hooks/use-toast";
+import { TimeRangePicker } from "@/components/ui/time-range-picker";
 
 const CreateEventPage = () => {
   const [step, setStep] = useState(1);
@@ -33,6 +34,7 @@ const CreateEventPage = () => {
     eventDescription: "",
     location: "",
     dateRange: { from: null, to: null },
+    time: { from: null, to: null },
     pricing: {
       standard: "",
       vip: "",
@@ -43,6 +45,8 @@ const CreateEventPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // console.log("Event Data =>", eventData);
 
   // Improved handle input change
   const handleInputChange = (e) => {
@@ -141,6 +145,10 @@ const CreateEventPage = () => {
             date: {
               from: eventData.dateRange.from?.toISOString(),
               to: eventData.dateRange.to?.toISOString(),
+            },
+            time: {
+              from: eventData.time.from,
+              to: eventData.time.to,
             },
             pricing: eventData.pricing,
             organizer: session?.user?.id,
@@ -257,7 +265,7 @@ const CreateEventPage = () => {
                   : "cursor-pointer"
               }
             >
-              Location & Dates
+              Location / Dates & Time
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -354,6 +362,28 @@ const CreateEventPage = () => {
                   />
                 </PopoverContent>
               </Popover>
+              <div className="mt-4">
+                <TimeRangePicker
+                  onStartTimeChange={(selectedTime) =>
+                    setEventData((prev) => ({
+                      ...prev,
+                      time: {
+                        ...prev.time, // Ensure `prev.time` exists
+                        from: selectedTime,
+                      },
+                    }))
+                  }
+                  onEndTimeChange={(selectedTime) =>
+                    setEventData((prev) => ({
+                      ...prev,
+                      time: {
+                        ...prev.time, // Ensure `prev.time` exists
+                        to: selectedTime,
+                      },
+                    }))
+                  }
+                />
+              </div>
             </div>
             <div className="flex justify-between">
               <Button type="button" variant="outline" onClick={handlePrevStep}>

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/carousel";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { EventCard } from "@/components/ui/event-card";
 
 // Events Data
 const events = [
@@ -62,7 +63,7 @@ const chunkEvents = (array, size) => {
 };
 
 export default function FeaturedEvents() {
-  const eventChunks = chunkEvents(events, 2); // Split events into chunks of 2
+  const eventChunks = chunkEvents(events, 3); // Split events into chunks of 2
 
   // Initialize AOS when the component mounts
   useEffect(() => {
@@ -87,34 +88,49 @@ export default function FeaturedEvents() {
           <CarouselContent>
             {eventChunks.map((chunk, index) => (
               <CarouselItem key={index}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-3">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-3">
                   {chunk.map((event, i) => (
                     <div
-                      className="flex gap-4 bg-white dark:bg-neutral-900 shadow-md rounded-lg"
+                      // className="flex gap-4 bg-white dark:bg-neutral-900 shadow-md rounded-lg"
                       key={i}
                       data-aos="fade-up" // Fade-up animation for each event
                       data-aos-delay={i * 100} // Stagger the animation
                     >
-                      <Image
-                        src={event.image}
-                        alt={event.title}
-                        width={200}
-                        height={150}
-                        className="rounded-l-lg bg-neutral-200 dark:bg-neutral-800"
+                      <EventCard
+                        title={event.title}
+                        date={event.date}
+                        time="9:00 AM - 4:00 PM"
+                        location={event.location}
+                        description="Explore the latest advancements in AI and their applications in healthcare with leading experts in the field."
                       />
-                      <div className="py-2 pr-2 flex flex-col justify-between gap-y-2 w-full">
-                        <h1 className="text-xl font-semibold">{event.title}</h1>
-                        <div>
-                          <p className="text-sm text-neutral-500">
-                            {event.date}
-                          </p>
-                          <p className="text-sm text-neutral-500">
-                            {event.location}
-                          </p>
-                        </div>
-                        <Button size="sm">View Details</Button>
-                      </div>
                     </div>
+
+                    // <div
+                    //   className="flex gap-4 bg-white dark:bg-neutral-900 shadow-md rounded-lg"
+                    //   key={i}
+                    //   data-aos="fade-up" // Fade-up animation for each event
+                    //   data-aos-delay={i * 100} // Stagger the animation
+                    // >
+                    //   <Image
+                    //     src={event.image}
+                    //     alt={event.title}
+                    //     width={200}
+                    //     height={150}
+                    //     className="rounded-l-lg bg-neutral-200 dark:bg-neutral-800"
+                    //   />
+                    //   <div className="py-2 pr-2 flex flex-col justify-between gap-y-2 w-full">
+                    //     <h1 className="text-xl font-semibold">{event.title}</h1>
+                    //     <div>
+                    //       <p className="text-sm text-neutral-500">
+                    //         {event.date}
+                    //       </p>
+                    //       <p className="text-sm text-neutral-500">
+                    //         {event.location}
+                    //       </p>
+                    //     </div>
+                    //     <Button size="sm">View Details</Button>
+                    //   </div>
+                    // </div>
                   ))}
                 </div>
               </CarouselItem>

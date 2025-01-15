@@ -5,9 +5,10 @@ import { NextResponse } from "next/server";
 export async function PUT(req, { params }) {
   try {
     const { id } = await params;
-    const { name, description, location, date, pricing } = await req.json();
+    const { name, description, location, date, time, pricing } =
+      await req.json();
     await dbConnect();
-    console.log("data ==========>", {name, description, location, date, pricing})
+    // console.log("data ==========>", {name, description, location, date, pricing})
 
     const existingEvent = await Event.findById(id);
 
@@ -25,11 +26,14 @@ export async function PUT(req, { params }) {
         date: date
           ? { from: new Date(date.from), to: new Date(date.to) }
           : { from: existingEvent.date.from, to: existingEvent.date.to },
+        time: time
+          ? { from: time.from, to: time.to }
+          : { from: existingEvent.time.from, to: existingEvent.time.to },
         pricing: pricing || existingEvent.pricing,
       },
       { new: true }
     ); // `new: true` ensures the updated document is returned
-    console.log("Updated Event =======>", updatedEvent)
+    // console.log("Updated Event =======>", updatedEvent);
 
     return NextResponse.json({
       message: "Event updated successfully.",

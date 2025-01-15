@@ -3,12 +3,20 @@ import Event from "@/lib/models/Event";
 
 export async function POST(req) {
   try {
-    const { name, description, location, date, pricing, organizer } =
+    const { name, description, location, date, time, pricing, organizer } =
       await req.json(); // Use await for parsing JSON
     await dbConnect();
 
     // Validate incoming data
-    if (!name || !description || !location || !date || !pricing || !organizer) {
+    if (
+      !name ||
+      !description ||
+      !location ||
+      !date ||
+      !time ||
+      !pricing ||
+      !organizer
+    ) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -38,6 +46,10 @@ export async function POST(req) {
       date: {
         from: new Date(date.from), // Ensure it's a valid Date object
         to: new Date(date.to),
+      },
+      time: {
+        from: time.from,
+        to: time.to,
       },
       pricing,
       organizer,

@@ -17,6 +17,7 @@ import {
   CalendarDays,
   CalendarIcon,
   CircleDollarSign,
+  Clock8,
   Eye,
   LoaderCircle,
   MapPin,
@@ -55,6 +56,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format, isValid } from "date-fns";
+import { TimeRangePicker } from "@/components/ui/time-range-picker";
 
 const EventManagementPage = () => {
   const [editingEvent, setEditingEvent] = useState({
@@ -62,6 +64,7 @@ const EventManagementPage = () => {
     description: "",
     location: "",
     date: { from: null, to: null },
+    time: { from: null, to: null },
     pricing: { standard: 0, vip: 0, general: 0 },
   });
 
@@ -237,6 +240,7 @@ const EventManagementPage = () => {
                   <TableHead className="min-w-72">Description</TableHead>
                   <TableHead className="min-w-52">Location</TableHead>
                   <TableHead className="min-w-64">Date</TableHead>
+                  <TableHead className="min-w-60">Time</TableHead>
                   <TableHead className="min-w-40">Last Modified</TableHead>
                   <TableHead className="min-w-40 sticky right-0 bg-blend-multiply backdrop-blur-md border-l border-border z-10">
                     Actions
@@ -278,6 +282,18 @@ const EventManagementPage = () => {
                           </Badge>
                         </div>
                       </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Clock8 className="text-rose-600" size={15} />
+                          <Badge variant="outline" className="font-normal">
+                            {event?.time?.from}
+                          </Badge>
+                          <ArrowRight size={15} />
+                          <Badge className="font-normal">
+                            {event?.time?.to}
+                          </Badge>
+                        </div>
+                      </TableCell>
                       <TableCell>{formatTimestamp(event?.updatedAt)}</TableCell>
                       <TableCell className="sticky right-0 bg-blend-multiply backdrop-blur-md z-10 border-l border-border flex items-center gap-0">
                         <Dialog>
@@ -302,7 +318,7 @@ const EventManagementPage = () => {
                               <p>{event?.description}</p>
                             </div>
 
-                            <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
+                            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
                               <h2 className="text-xl font-medium flex items-center gap-2">
                                 <MapPin className="text-red-600" />
                                 <span>{event?.location}</span>
@@ -332,6 +348,17 @@ const EventManagementPage = () => {
                                     {getDate(event?.date?.from)}
                                   </Badge>{" "}
                                   to <Badge>{getDate(event?.date?.to)}</Badge>
+                                </p>
+                              </div>
+                              <div className="font-medium text-neutral-700 flex items-center gap-2">
+                                <h2 className="font-medium text-neutral-700">
+                                  <Clock8 className="text-rose-600 text-xl" />
+                                </h2>
+                                <p>
+                                  <Badge variant="outline">
+                                    {event?.time?.from}
+                                  </Badge>{" "}
+                                  to <Badge>{event?.time?.to}</Badge>
                                 </p>
                               </div>
                             </div>
@@ -398,7 +425,7 @@ const EventManagementPage = () => {
                               </div>
                               <div className="bg-accent/40 w-full rounded-lg p-4 border border-border">
                                 <h1 className="text-lg font-semibold">
-                                  Date & Location
+                                  Location / Date & Time
                                 </h1>
                                 <div className="mb-2">
                                   <Label htmlFor="location">Location</Label>
@@ -443,6 +470,28 @@ const EventManagementPage = () => {
                                       />
                                     </PopoverContent>
                                   </Popover>
+                                </div>
+                                <div className="mt-4">
+                                  <TimeRangePicker
+                                    onStartTimeChange={(selectedTime) =>
+                                      setEditingEvent((prev) => ({
+                                        ...prev,
+                                        time: {
+                                          ...prev.time, // Ensure `prev.time` exists
+                                          from: selectedTime,
+                                        },
+                                      }))
+                                    }
+                                    onEndTimeChange={(selectedTime) =>
+                                      setEditingEvent((prev) => ({
+                                        ...prev,
+                                        time: {
+                                          ...prev.time, // Ensure `prev.time` exists
+                                          to: selectedTime,
+                                        },
+                                      }))
+                                    }
+                                  />
                                 </div>
                               </div>
                               <div className="bg-accent/40 w-full rounded-lg p-4 border border-border">
