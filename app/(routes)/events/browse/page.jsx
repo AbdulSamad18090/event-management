@@ -169,9 +169,8 @@ export default function BrowseEvents() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {allEvents?.map((event, i) => (
-            <div data-aos="fade-up" data-aos-delay={i * 300}>
+            <div key={event?._id} data-aos="fade-up" data-aos-delay={i * 300}>
               <EventCard
-                key={event?._id}
                 title={event?.name}
                 description={event?.description}
                 location={event?.location}
