@@ -61,7 +61,6 @@ export default function UpcomingEvents() {
     AOS.init({
       duration: 1000,
       once: true,
-      disable: "mobile",
     });
 
     return () => {

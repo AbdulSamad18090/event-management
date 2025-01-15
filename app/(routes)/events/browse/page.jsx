@@ -23,10 +23,13 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import cities from "../../../../lib/pak-cities/pak-cities.json";
+import AOS from "aos";
 
 export default function BrowseEvents() {
   const dispatch = useDispatch();
-  const { allEvents, loading, pagination } = useSelector((state) => state.event);
+  const { allEvents, loading, pagination } = useSelector(
+    (state) => state.event
+  );
   const { currentPage, totalEvents, totalPages } = pagination;
 
   const [limit] = useState(9);
@@ -37,52 +40,66 @@ export default function BrowseEvents() {
   const [filters, setFilters] = useState({
     searchText: "",
     city: "all",
-    dateRange: "any"
+    dateRange: "any",
   });
 
   useEffect(() => {
-    dispatch(fetchAllEvents({ 
-      page: currentPage, 
-      limit,
-      ...filters
-    }));
+    dispatch(
+      fetchAllEvents({
+        page: currentPage,
+        limit,
+        ...filters,
+      })
+    );
   }, [dispatch, currentPage, limit, filters]);
 
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+    });
+  }, []);
+
   const handleSearch = () => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       searchText: searchEventText,
       city: selectedCity,
-      dateFilter: selectedDate
+      dateFilter: selectedDate,
     }));
     // Reset to first page when searching
-    dispatch(fetchAllEvents({ 
-      page: currentPage, 
-      limit,
-      searchText: searchEventText,
-      city: selectedCity,
-      dateFilter: selectedDate
-    }));
+    dispatch(
+      fetchAllEvents({
+        page: currentPage,
+        limit,
+        searchText: searchEventText,
+        city: selectedCity,
+        dateFilter: selectedDate,
+      })
+    );
   };
-
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      dispatch(fetchAllEvents({ 
-        page: currentPage + 1, 
-        limit,
-        ...filters
-      }));
+      dispatch(
+        fetchAllEvents({
+          page: currentPage + 1,
+          limit,
+          ...filters,
+        })
+      );
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      dispatch(fetchAllEvents({ 
-        page: currentPage - 1, 
-        limit,
-        ...filters
-      }));
+      dispatch(
+        fetchAllEvents({
+          page: currentPage - 1,
+          limit,
+          ...filters,
+        })
+      );
     }
   };
 
@@ -98,7 +115,7 @@ export default function BrowseEvents() {
             className="w-full"
             value={searchEventText}
             onChange={(e) => setSearchEventText(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
         </div>
         <div className="flex gap-4 flex-wrap">
@@ -151,15 +168,17 @@ export default function BrowseEvents() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {allEvents?.map((event) => (
-            <EventCard
-              key={event?._id}
-              title={event?.name}
-              description={event?.description}
-              location={event?.location}
-              date={event?.date}
-              time={event?.time}
-            />
+          {allEvents?.map((event, i) => (
+            <div data-aos="fade-up" data-aos-delay={i * 300}>
+              <EventCard
+                key={event?._id}
+                title={event?.name}
+                description={event?.description}
+                location={event?.location}
+                date={event?.date}
+                time={event?.time}
+              />
+            </div>
           ))}
         </div>
       )}
@@ -180,11 +199,13 @@ export default function BrowseEvents() {
                 <PaginationLink
                   isActive={currentPage === i + 1}
                   onClick={() =>
-                    dispatch(fetchAllEvents({ 
-                      page: i + 1, 
-                      limit,
-                      ...filters
-                    }))
+                    dispatch(
+                      fetchAllEvents({
+                        page: i + 1,
+                        limit,
+                        ...filters,
+                      })
+                    )
                   }
                 >
                   {i + 1}

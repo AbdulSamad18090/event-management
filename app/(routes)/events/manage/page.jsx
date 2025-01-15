@@ -85,7 +85,7 @@ const EventManagementPage = () => {
     AOS.init({
       duration: 500, // Animation duration
       once: true, // Animate only once
-      // disable: "mobile", // Disable on mobile devices (optional)
+      //  // Disable on mobile devices (optional)
     });
   }, []);
 
