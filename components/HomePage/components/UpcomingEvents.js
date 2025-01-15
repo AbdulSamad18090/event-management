@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/carousel";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { EventCard } from "@/components/ui/event-card";
 
 // Events Data
 const events = [
@@ -85,7 +86,7 @@ export default function UpcomingEvents() {
   useEffect(() => {
     const updateChunkSize = () => {
       const screenWidth = window.innerWidth;
-      const newChunkSize = screenWidth >= 1024 ? 4 : 2; // 4 for large screens, 2 for small screens
+      const newChunkSize = screenWidth >= 1024 ? 3 : 2; // 3 for large screens, 1 for small screens
       setChunkSize(newChunkSize);
       setEventChunks(chunkEvents(events, newChunkSize));
     };
@@ -119,39 +120,53 @@ export default function UpcomingEvents() {
           <CarouselContent>
             {eventChunks.map((chunk, index) => (
               <CarouselItem key={index}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
-                  {chunk.map((event, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                  {chunk.map((event, i) => (
                     <div
-                      key={event.id}
-                      data-aos="fade-up" // Fade-in animation for each event card
-                      data-aos-delay={index * 200} // Add a delay to stagger the animations
+                      // className="flex gap-4 bg-white dark:bg-neutral-900 shadow-md rounded-lg"
+                      key={i}
+                      data-aos="fade-up" // Fade-up animation for each event
+                      data-aos-delay={i * 100} // Stagger the animation
                     >
-                      <Card>
-                        <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
-                          <Image
-                            src={event.image}
-                            alt={event.title}
-                            width={600}
-                            height={400}
-                            className="rounded-t-[0.9rem] dark:bg-neutral-800"
-                          />
-                        </CardHeader>
-                        <CardContent className="mt-4">
-                          <CardTitle className="text-lg md:text-xl">
-                            {event.title}
-                          </CardTitle>
-                          <p className="text-sm text-neutral-500 mt-2">
-                            {event.date}
-                          </p>
-                          <p className="text-sm text-neutral-500">
-                            {event.location}
-                          </p>
-                        </CardContent>
-                        <CardFooter>
-                          <Button className="w-full">View Details</Button>
-                        </CardFooter>
-                      </Card>
+                      <EventCard
+                        title={event.title}
+                        date={event.date}
+                        time="9:00 AM - 4:00 PM"
+                        location={event.location}
+                        description="Explore the latest advancements in AI and their applications in healthcare with leading experts in the field."
+                      />
                     </div>
+                    // <div
+                    //   key={event.id}
+                    //   data-aos="fade-up" // Fade-in animation for each event card
+                    //   data-aos-delay={index * 200} // Add a delay to stagger the animations
+                    // >
+                    //   <Card>
+                    //     <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
+                    //       <Image
+                    //         src={event.image}
+                    //         alt={event.title}
+                    //         width={600}
+                    //         height={400}
+                    //         className="rounded-t-[0.9rem] dark:bg-neutral-800"
+                    //       />
+                    //     </CardHeader>
+                    //     <CardContent className="mt-4">
+                    //       <CardTitle className="text-lg md:text-xl">
+                    //         {event.title}
+                    //       </CardTitle>
+                    //       <p className="text-sm text-neutral-500 mt-2">
+                    //         {event.date}
+                    //       </p>
+                    //       <p className="text-sm text-neutral-500">
+                    //         {event.location}
+                    //       </p>
+                    //     </CardContent>
+                    //     <CardFooter>
+                    //       <Button className="w-full">View Details</Button>
+                    //     </CardFooter>
+                    //   </Card>
+                    // </div>
                   ))}
                 </div>
               </CarouselItem>

@@ -13,7 +13,7 @@ export function EventCard({ title, date, time, location, description }) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">{title}</CardTitle>
+        <CardTitle className="text-2xl font-bold custom-line-clamp-1">{title}</CardTitle>
         <CardDescription className="flex items-center mt-2">
           <CalendarIcon className="w-4 h-4 mr-2" />
           {date}
@@ -30,10 +30,10 @@ export function EventCard({ title, date, time, location, description }) {
             <span>{location}</span>
           </div>
         </div>
-        <p className="mt-4 text-sm text-gray-600">{description}</p>
+        <p className="mt-4 text-sm text-gray-600 custom-line-clamp-3">{description}</p>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Register Now</Button>
+        <Button className="w-full">View Details</Button>
       </CardFooter>
     </Card>
   );

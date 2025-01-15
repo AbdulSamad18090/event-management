@@ -99,3 +99,12 @@ body {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+
+.custom-line-clamp-3 {
+  display: -webkit-box;       /* Enables the flexbox layout for webkit browsers */
+  -webkit-box-orient: vertical; /* Set box orientation to vertical */
+  overflow: hidden;           /* Hides overflowing text */
+  text-overflow: ellipsis;    /* Adds ellipsis for truncated text */
+  -webkit-line-clamp: 3;      /* Limits text to 3 lines */
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -51,9 +51,23 @@ const events = [
     location: "Los Angeles, CA",
     image: "/placeholder.svg?height=400&width=600",
   },
+  {
+    id: 5,
+    title: "Art Exhibition",
+    date: "December 10-15, 2023",
+    location: "Seattle, WA",
+    image: "/placeholder.svg?height=400&width=600",
+  },
+  {
+    id: 6,
+    title: "Sports Tournament",
+    date: "January 5-7, 2024",
+    location: "Chicago, IL",
+    image: "/placeholder.svg?height=400&width=600",
+  },
 ];
 
-// Helper Function: Split events into chunks of 2
+// Helper Function: Split events into chunks
 const chunkEvents = (array, size) => {
   const chunks = [];
   for (let i = 0; i < array.length; i += size) {
@@ -62,20 +76,38 @@ const chunkEvents = (array, size) => {
   return chunks;
 };
 
-export default function FeaturedEvents() {
-  const eventChunks = chunkEvents(events, 3); // Split events into chunks of 2
+export default function UpcomingEvents() {
+  const [chunkSize, setChunkSize] = useState(2); // Default chunk size for small screens
+  const [eventChunks, setEventChunks] = useState(
+    chunkEvents(events, chunkSize)
+  );
 
-  // Initialize AOS when the component mounts
+  // Adjust chunk size based on screen width
   useEffect(() => {
+    const updateChunkSize = () => {
+      const screenWidth = window.innerWidth;
+      const newChunkSize = screenWidth >= 1024 ? 3 : 2; // 3 for large screens, 1 for small screens
+      setChunkSize(newChunkSize);
+      setEventChunks(chunkEvents(events, newChunkSize));
+    };
+
+    updateChunkSize(); // Set initial chunk size
+    window.addEventListener("resize", updateChunkSize);
+
+    // Initialize AOS when the component mounts
     AOS.init({
       duration: 1000, // Animation duration
       once: true, // Animate only once
-      // disable: "mobile", // Disable on mobile devices (optional)
+      disable: "mobile", // Disable on mobile devices (optional)
     });
+
+    return () => {
+      window.removeEventListener("resize", updateChunkSize);
+    };
   }, []);
 
   return (
-    <section className="py-16 bg-muted/50">
+    <section className="py-16 bg-muted/0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2
           className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-300 mb-8"
@@ -88,7 +120,7 @@ export default function FeaturedEvents() {
           <CarouselContent>
             {eventChunks.map((chunk, index) => (
               <CarouselItem key={index}>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
                   {chunk.map((event, i) => (
                     <div
                       // className="flex gap-4 bg-white dark:bg-neutral-900 shadow-md rounded-lg"
@@ -104,32 +136,36 @@ export default function FeaturedEvents() {
                         description="Explore the latest advancements in AI and their applications in healthcare with leading experts in the field."
                       />
                     </div>
-
                     // <div
-                    //   className="flex gap-4 bg-white dark:bg-neutral-900 shadow-md rounded-lg"
-                    //   key={i}
-                    //   data-aos="fade-up" // Fade-up animation for each event
-                    //   data-aos-delay={i * 100} // Stagger the animation
+                    //   key={event.id}
+                    //   data-aos="fade-up" // Fade-in animation for each event card
+                    //   data-aos-delay={index * 200} // Add a delay to stagger the animations
                     // >
-                    //   <Image
-                    //     src={event.image}
-                    //     alt={event.title}
-                    //     width={200}
-                    //     height={150}
-                    //     className="rounded-l-lg bg-neutral-200 dark:bg-neutral-800"
-                    //   />
-                    //   <div className="py-2 pr-2 flex flex-col justify-between gap-y-2 w-full">
-                    //     <h1 className="text-xl font-semibold">{event.title}</h1>
-                    //     <div>
-                    //       <p className="text-sm text-neutral-500">
+                    //   <Card>
+                    //     <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
+                    //       <Image
+                    //         src={event.image}
+                    //         alt={event.title}
+                    //         width={600}
+                    //         height={400}
+                    //         className="rounded-t-[0.9rem] dark:bg-neutral-800"
+                    //       />
+                    //     </CardHeader>
+                    //     <CardContent className="mt-4">
+                    //       <CardTitle className="text-lg md:text-xl">
+                    //         {event.title}
+                    //       </CardTitle>
+                    //       <p className="text-sm text-neutral-500 mt-2">
                     //         {event.date}
                     //       </p>
                     //       <p className="text-sm text-neutral-500">
                     //         {event.location}
                     //       </p>
-                    //     </div>
-                    //     <Button size="sm">View Details</Button>
-                    //   </div>
+                    //     </CardContent>
+                    //     <CardFooter>
+                    //       <Button className="w-full">View Details</Button>
+                    //     </CardFooter>
+                    //   </Card>
                     // </div>
                   ))}
                 </div>
@@ -140,10 +176,12 @@ export default function FeaturedEvents() {
           <CarouselNext />
         </Carousel>
 
-        <div className="flex justify-center mt-10">
-          <Button data-aos="fade-up" data-aos-delay="500">
-            Browse All Events
-          </Button>
+        <div
+          className="flex justify-center mt-10"
+          data-aos="fade-up" // Fade-in animation for the Browse All Events button
+          data-aos-delay="500" // Delay the button animation
+        >
+          <Button>Browse All Events</Button>
         </div>
       </div>
     </section>
