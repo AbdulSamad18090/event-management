@@ -25,22 +25,27 @@ import {
 
 export default function BrowseEvents() {
   const dispatch = useDispatch();
-  const { allEvents, loading } = useSelector((state) => state.event);
+  const { allEvents, loading, pagination } = useSelector(
+    (state) => state.event
+  );
 
-  const [currentPage, setCurrentPage] = useState(1); // Track current page
-  const [limit] = useState(1); // Number of events per page
+  const { currentPage, totalEvents, totalPages } = pagination;
+
+  const [limit] = useState(9); // Number of events per page
 
   useEffect(() => {
     dispatch(fetchAllEvents({ page: currentPage, limit }));
   }, [dispatch, currentPage, limit]);
 
   const handleNextPage = () => {
-    setCurrentPage((prev) => prev + 1);
+    if (currentPage < totalPages) {
+      dispatch(fetchAllEvents({ page: currentPage + 1, limit }));
+    }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
+      dispatch(fetchAllEvents({ page: currentPage - 1, limit }));
     }
   };
 
@@ -107,39 +112,50 @@ export default function BrowseEvents() {
       )}
 
       {/* Pagination Controls */}
-      <div className="flex justify-center items-center gap-4 mt-8">
-        <Button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          variant="outline"
-        >
-          Previous
-        </Button>
-        <span className="text-lg font-medium">Page {currentPage}</span>
-        <Button
-          onClick={handleNextPage}
-          disabled={loading || allEvents.length < limit}
-          variant="outline"
-        >
-          Next
-        </Button>
+
+      {/* Pagination Component */}
+      <div className="p-4 my-5">
+        <Pagination>
+          <PaginationContent>
+            {/* Previous page */}
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+              />
+            </PaginationItem>
+
+            {/* Pages */}
+            {Array.from({ length: totalPages }, (_, i) => (
+              <PaginationItem key={i + 1}>
+                <PaginationLink
+                  isActive={currentPage === i + 1}
+                  onClick={() =>
+                    dispatch(fetchAllEvents({ page: i + 1, limit }))
+                  }
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            {/* Ellipsis */}
+            {totalPages > 5 && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
+
+            {/* Next page */}
+            <PaginationItem>
+              <PaginationNext
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href="#" />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">1</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext href="#" />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
     </div>
   );
 }
