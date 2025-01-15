@@ -23,6 +23,7 @@ import { EventCard } from "@/components/ui/event-card";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllEvents } from "@/lib/features/eventSlice";
 import { LoaderCircle } from "lucide-react";
+import Link from "next/link";
 
 // Helper function to chunk events
 const chunkEvents = (array, size) => {
@@ -122,7 +123,9 @@ export default function UpcomingEvents() {
           data-aos="fade-up"
           data-aos-delay="500"
         >
-          <Button>Browse All Events</Button>
+          <Link href={"/events/browse"}>
+            <Button>Browse All Events</Button>
+          </Link>
         </div>
       </div>
     </section>

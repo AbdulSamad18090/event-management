@@ -22,6 +22,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import cities from "../../../../lib/pak-cities/pak-cities.json";
 
 export default function BrowseEvents() {
   const dispatch = useDispatch();
@@ -32,6 +33,8 @@ export default function BrowseEvents() {
   const { currentPage, totalEvents, totalPages } = pagination;
 
   const [limit] = useState(9); // Number of events per page
+  const [searchCityText, setSearchCityText] = useState("");
+  const [searchEventText, setSearchEventText] = useState("");
 
   useEffect(() => {
     dispatch(fetchAllEvents({ page: currentPage, limit }));
@@ -56,21 +59,36 @@ export default function BrowseEvents() {
       {/* Filters Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <div className="flex-grow">
-          <Input placeholder="Search events..." className="w-full" />
+          <Input
+            placeholder="Search events..."
+            className="w-full"
+            value={searchEventText}
+            onChange={(e) => setSearchEventText(e.target.SelectValue)}
+          />
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <Select>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Location" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="h-64">
+              <Input
+                placeholder="Search city"
+                value={searchCityText}
+                onChange={(e) => setSearchCityText(e.target.value)}
+              />
               <SelectItem value="all">All Locations</SelectItem>
-              <SelectItem value="san-francisco">San Francisco, CA</SelectItem>
-              <SelectItem value="new-york">New York, NY</SelectItem>
-              <SelectItem value="los-angeles">Los Angeles, CA</SelectItem>
-              <SelectItem value="chicago">Chicago, IL</SelectItem>
-              <SelectItem value="austin">Austin, TX</SelectItem>
-              <SelectItem value="seattle">Seattle, WA</SelectItem>
+              {cities
+                ?.filter((city) =>
+                  city?.name
+                    ?.toLowerCase()
+                    .includes(searchCityText.toLowerCase())
+                )
+                ?.map((city, i) => (
+                  <SelectItem key={i} value={city?.name.toLowerCase()}>
+                    {city?.name}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
           <Select>
