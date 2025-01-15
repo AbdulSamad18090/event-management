@@ -26,29 +26,63 @@ import cities from "../../../../lib/pak-cities/pak-cities.json";
 
 export default function BrowseEvents() {
   const dispatch = useDispatch();
-  const { allEvents, loading, pagination } = useSelector(
-    (state) => state.event
-  );
-
+  const { allEvents, loading, pagination } = useSelector((state) => state.event);
   const { currentPage, totalEvents, totalPages } = pagination;
 
-  const [limit] = useState(9); // Number of events per page
+  const [limit] = useState(9);
   const [searchCityText, setSearchCityText] = useState("");
   const [searchEventText, setSearchEventText] = useState("");
+  const [selectedCity, setSelectedCity] = useState("all");
+  const [selectedDate, setSelectedDate] = useState("any");
+  const [filters, setFilters] = useState({
+    searchText: "",
+    city: "all",
+    dateRange: "any"
+  });
 
   useEffect(() => {
-    dispatch(fetchAllEvents({ page: currentPage, limit }));
-  }, [dispatch, currentPage, limit]);
+    dispatch(fetchAllEvents({ 
+      page: currentPage, 
+      limit,
+      ...filters
+    }));
+  }, [dispatch, currentPage, limit, filters]);
+
+  const handleSearch = () => {
+    setFilters(prev => ({
+      ...prev,
+      searchText: searchEventText,
+      city: selectedCity,
+      dateFilter: selectedDate
+    }));
+    // Reset to first page when searching
+    dispatch(fetchAllEvents({ 
+      page: currentPage, 
+      limit,
+      searchText: searchEventText,
+      city: selectedCity,
+      dateFilter: selectedDate
+    }));
+  };
+
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      dispatch(fetchAllEvents({ page: currentPage + 1, limit }));
+      dispatch(fetchAllEvents({ 
+        page: currentPage + 1, 
+        limit,
+        ...filters
+      }));
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      dispatch(fetchAllEvents({ page: currentPage - 1, limit }));
+      dispatch(fetchAllEvents({ 
+        page: currentPage - 1, 
+        limit,
+        ...filters
+      }));
     }
   };
 
@@ -63,11 +97,12 @@ export default function BrowseEvents() {
             placeholder="Search events..."
             className="w-full"
             value={searchEventText}
-            onChange={(e) => setSearchEventText(e.target.SelectValue)}
+            onChange={(e) => setSearchEventText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
         </div>
         <div className="flex gap-4 flex-wrap">
-          <Select>
+          <Select value={selectedCity} onValueChange={setSelectedCity}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Location" />
             </SelectTrigger>
@@ -91,7 +126,7 @@ export default function BrowseEvents() {
                 ))}
             </SelectContent>
           </Select>
-          <Select>
+          <Select value={selectedDate} onValueChange={setSelectedDate}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Date" />
             </SelectTrigger>
@@ -103,7 +138,7 @@ export default function BrowseEvents() {
               <SelectItem value="month">This Month</SelectItem>
             </SelectContent>
           </Select>
-          <Button>
+          <Button onClick={handleSearch}>
             <Search className="mr-2 h-4 w-4" /> Search
           </Button>
         </div>
@@ -129,13 +164,10 @@ export default function BrowseEvents() {
         </div>
       )}
 
-      {/* Pagination Controls */}
-
       {/* Pagination Component */}
       <div className="p-4 my-5">
         <Pagination>
           <PaginationContent>
-            {/* Previous page */}
             <PaginationItem>
               <PaginationPrevious
                 onClick={handlePreviousPage}
@@ -143,13 +175,16 @@ export default function BrowseEvents() {
               />
             </PaginationItem>
 
-            {/* Pages */}
             {Array.from({ length: totalPages }, (_, i) => (
               <PaginationItem key={i + 1}>
                 <PaginationLink
                   isActive={currentPage === i + 1}
                   onClick={() =>
-                    dispatch(fetchAllEvents({ page: i + 1, limit }))
+                    dispatch(fetchAllEvents({ 
+                      page: i + 1, 
+                      limit,
+                      ...filters
+                    }))
                   }
                 >
                   {i + 1}
@@ -157,14 +192,12 @@ export default function BrowseEvents() {
               </PaginationItem>
             ))}
 
-            {/* Ellipsis */}
             {totalPages > 5 && (
               <PaginationItem>
                 <PaginationEllipsis />
               </PaginationItem>
             )}
 
-            {/* Next page */}
             <PaginationItem>
               <PaginationNext
                 onClick={handleNextPage}
