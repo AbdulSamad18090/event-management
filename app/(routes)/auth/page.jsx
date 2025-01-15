@@ -15,6 +15,7 @@ import RegisterForm from "./_components/RegisterForm";
 import LoginForm from "./_components/LoginForm";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { CalendarDays } from "lucide-react";
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState("login");
@@ -37,14 +38,18 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 py-5">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="flex flex-col items-center">
-          <Image
+          {/* <Image
             src={"/images/logoimage.png"}
             alt="logo"
             width={100}
             height={100}
+          /> */}
+          <CalendarDays
+            size={80}
+            className="text-orange-500 dark:text-orange-600 mb-4 rotate-6"
           />
           <CardTitle className="text-center text-2xl">
-            Welcome To <span className="text-rose-600">Event Master</span>
+            Welcome To <span className="text-orange-500">Event Master</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -79,7 +84,7 @@ export default function AuthPage() {
               onClick={() =>
                 setActiveTab(activeTab === "login" ? "register" : "login")
               }
-              className="text-rose-500 cursor-pointer hover:underline"
+              className="text-orange-500 cursor-pointer hover:underline"
             >
               {activeTab === "login" ? "Register here" : "Login here"}
             </span>

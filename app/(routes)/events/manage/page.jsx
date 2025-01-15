@@ -267,12 +267,12 @@ const EventManagementPage = () => {
                         </div>
                       </TableCell>
                       <TableCell className="flex items-center gap-1">
-                        <MapPin className="text-rose-600" size={15} />
+                        <MapPin className="text-orange-500" size={15} />
                         {event?.location}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <CalendarDays className="text-rose-600" size={15} />
+                          <CalendarDays className="text-orange-500" size={15} />
                           <Badge variant="outline" className="font-normal">
                             {formatTimestamp(event?.date?.from)}
                           </Badge>
@@ -284,7 +284,7 @@ const EventManagementPage = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Clock8 className="text-rose-600" size={15} />
+                          <Clock8 className="text-orange-500" size={15} />
                           <Badge variant="outline" className="font-normal">
                             {event?.time?.from}
                           </Badge>
@@ -352,7 +352,7 @@ const EventManagementPage = () => {
                               </div>
                               <div className="font-medium text-neutral-700 flex items-center gap-2">
                                 <h2 className="font-medium text-neutral-700">
-                                  <Clock8 className="text-rose-600 text-xl" />
+                                  <Clock8 className="text-orange-500 text-xl" />
                                 </h2>
                                 <p>
                                   <Badge variant="outline">
@@ -381,7 +381,7 @@ const EventManagementPage = () => {
                               <DialogTitle>Edit</DialogTitle>
                               <DialogDescription>
                                 You are editing{" "}
-                                <span className="font-semibold text-rose-500">
+                                <span className="font-semibold text-orange-500">
                                   {event?.name}
                                 </span>{" "}
                                 event

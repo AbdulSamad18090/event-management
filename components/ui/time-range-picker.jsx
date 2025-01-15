@@ -32,37 +32,9 @@ export function TimeRangePicker({ onStartTimeChange, onEndTimeChange }) {
     return times;
   }, []);
 
-  const convertTo24Hour = (time12h) => {
-    const [time, period] = time12h.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
-
-    if (hours === 12) {
-      hours = period === "AM" ? 0 : 12;
-    } else if (period === "PM") {
-      hours += 12;
-    }
-
-    return hours * 60 + minutes;
-  };
-
-  const isTimeBeforeStart = React.useCallback(
-    (time) => {
-      const startMinutes = convertTo24Hour(startTime);
-      const timeMinutes = convertTo24Hour(time);
-      return timeMinutes < startMinutes;
-    },
-    [startTime]
-  );
-
   const handleStartTimeChange = (time) => {
     setStartTime(time);
     onStartTimeChange?.(time);
-
-    // If end time is before new start time, update it
-    if (isTimeBeforeStart(endTime)) {
-      setEndTime(time);
-      onEndTimeChange?.(time);
-    }
   };
 
   const handleEndTimeChange = (time) => {
@@ -80,7 +52,7 @@ export function TimeRangePicker({ onStartTimeChange, onEndTimeChange }) {
               <SelectTrigger id="start-time">
                 <SelectValue placeholder="Select start time" />
               </SelectTrigger>
-              <SelectContent className='h-60'>
+              <SelectContent className="h-60">
                 {timeOptions.map((time) => (
                   <SelectItem key={time} value={time}>
                     {time}
@@ -95,13 +67,9 @@ export function TimeRangePicker({ onStartTimeChange, onEndTimeChange }) {
               <SelectTrigger id="end-time">
                 <SelectValue placeholder="Select end time" />
               </SelectTrigger>
-              <SelectContent className='h-60'>
+              <SelectContent className="h-60">
                 {timeOptions.map((time) => (
-                  <SelectItem
-                    key={time}
-                    value={time}
-                    disabled={isTimeBeforeStart(time)}
-                  >
+                  <SelectItem key={time} value={time}>
                     {time}
                   </SelectItem>
                 ))}

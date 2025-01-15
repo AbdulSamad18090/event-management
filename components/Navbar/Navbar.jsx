@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, LoaderCircle, LogOut, Menu } from "lucide-react";
+import { CalendarDays, ExternalLink, LoaderCircle, LogOut, Menu } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -63,8 +63,9 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center gap-2">
-            <Image src={"/images/logo.png"} alt="logo" width={50} height={50} />
-            <Link href="/" className="font-bold text-xl text-primary">
+            {/* <Image src={"/images/logo.png"} alt="logo" width={50} height={50} /> */}
+            <CalendarDays size={30} className="text-orange-500 dark:text-orange-600 rotate-6" />
+            <Link href="/" className="font-semibold text-xl text-primary">
               EventMaster
             </Link>
           </div>
@@ -103,7 +104,7 @@ export default function Header() {
                     <Link
                       key={i}
                       href={item.url}
-                      className="hover:text-rose-500 transition-all"
+                      className="hover:text-orange-500 transition-all"
                     >
                       <Button variant="ghost">{item.name}</Button>
                     </Link>
@@ -184,7 +185,7 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent className="flex flex-col justify-between">
                 <SheetHeader>
-                  <SheetTitle className="text-2xl text-rose-600 flex items-center gap-2">
+                  <SheetTitle className="text-2xl text-orange-500 flex items-center gap-2">
                     <Image
                       src={"/images/logo.png"}
                       alt="logo"
@@ -229,7 +230,7 @@ export default function Header() {
                               <Link
                                 key={i}
                                 href={item.url}
-                                className="hover:text-rose-500 transition-all"
+                                className="hover:text-orange-500 transition-all"
                               >
                                 <Button variant="ghost">{item.name}</Button>
                               </Link>

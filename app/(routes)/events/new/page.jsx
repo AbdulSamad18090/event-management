@@ -248,7 +248,7 @@ const CreateEventPage = () => {
               onClick={() => setStep(1)}
               className={
                 step === 1
-                  ? "font-bold text-rose-600 cursor-pointer"
+                  ? "font-bold text-orange-500 cursor-pointer"
                   : "cursor-pointer"
               }
             >
@@ -261,7 +261,7 @@ const CreateEventPage = () => {
               onClick={() => step > 1 && setStep(2)}
               className={
                 step === 2
-                  ? "font-bold text-rose-600 cursor-pointer"
+                  ? "font-bold text-orange-500 cursor-pointer"
                   : "cursor-pointer"
               }
             >
@@ -273,7 +273,7 @@ const CreateEventPage = () => {
             <BreadcrumbPage
               className={
                 step === 3
-                  ? "font-bold text-rose-600 cursor-pointer"
+                  ? "font-bold text-orange-500 cursor-pointer"
                   : "cursor-pointer"
               }
             >

@@ -117,7 +117,7 @@ const LoginForm = () => {
             )}
             <div className="w-full flex justify-end">
               <div
-                className="my-2 text-sm text-rose-600 hover:underline cursor-pointer"
+                className="my-2 text-sm text-orange-500 hover:underline cursor-pointer"
                 onClick={() => {
                   setIsOpenForgotPasswordDialog(true);
                 }}
