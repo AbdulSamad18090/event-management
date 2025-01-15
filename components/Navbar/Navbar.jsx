@@ -1,7 +1,13 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, ExternalLink, LoaderCircle, LogOut, Menu } from "lucide-react";
+import {
+  CalendarDays,
+  ExternalLink,
+  LoaderCircle,
+  LogOut,
+  Menu,
+} from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -64,7 +70,10 @@ export default function Header() {
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center gap-2">
             {/* <Image src={"/images/logo.png"} alt="logo" width={50} height={50} /> */}
-            <CalendarDays size={30} className="text-orange-500 dark:text-orange-600 rotate-6" />
+            <CalendarDays
+              size={30}
+              className="text-orange-500 dark:text-orange-600 rotate-6"
+            />
             <Link href="/" className="font-semibold text-xl text-primary">
               EventMaster
             </Link>
@@ -186,11 +195,15 @@ export default function Header() {
               <SheetContent className="flex flex-col justify-between">
                 <SheetHeader>
                   <SheetTitle className="text-2xl text-orange-500 flex items-center gap-2">
-                    <Image
+                    {/* <Image
                       src={"/images/logo.png"}
                       alt="logo"
                       width={50}
                       height={50}
+                    /> */}
+                    <CalendarDays
+                      size={30}
+                      className="text-orange-500 dark:text-orange-600 rotate-6"
                     />
                     EventMaster
                   </SheetTitle>

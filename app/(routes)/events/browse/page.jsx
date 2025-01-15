@@ -1,3 +1,4 @@
+"use client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,66 +8,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllEvents } from "@/lib/features/eventSlice";
+import { EventCard } from "@/components/ui/event-card";
+import { LoaderCircle, Search } from "lucide-react";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Calendar, Clock, MapPin, Search } from "lucide-react";
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function BrowseEvents() {
-  // This would typically come from a database or API, filtered by location
-  const events = [
-    {
-      id: 1,
-      title: "Tech Conference 2023",
-      date: "2023-09-15",
-      time: "09:00 AM",
-      location: "San Francisco, CA",
-    },
-    {
-      id: 2,
-      title: "Music Festival",
-      date: "2023-10-01",
-      time: "12:00 PM",
-      location: "Austin, TX",
-    },
-    {
-      id: 3,
-      title: "Food & Wine Expo",
-      date: "2023-08-20",
-      time: "11:00 AM",
-      location: "New York, NY",
-    },
-    {
-      id: 4,
-      title: "Art Gallery Opening",
-      date: "2023-09-05",
-      time: "07:00 PM",
-      location: "Los Angeles, CA",
-    },
-    {
-      id: 5,
-      title: "Marathon",
-      date: "2023-11-12",
-      time: "06:00 AM",
-      location: "Chicago, IL",
-    },
-    {
-      id: 6,
-      title: "Book Fair",
-      date: "2023-09-30",
-      time: "10:00 AM",
-      location: "Seattle, WA",
-    },
-  ];
+  const dispatch = useDispatch();
+  const { allEvents, loading } = useSelector((state) => state.event);
+
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [limit] = useState(1); // Number of events per page
+
+  useEffect(() => {
+    dispatch(fetchAllEvents({ page: currentPage, limit }));
+  }, [dispatch, currentPage, limit]);
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => prev + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Browse Nearby Events</h1>
 
+      {/* Filters Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <div className="flex-grow">
           <Input placeholder="Search events..." className="w-full" />
@@ -104,32 +86,60 @@ export default function BrowseEvents() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map((event) => (
-          <Card key={event.id}>
-            <CardHeader>
-              <CardTitle>{event.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center mb-2">
-                <Calendar className="mr-2 h-4 w-4" />
-                <span>{event.date}</span>
-              </div>
-              <div className="flex items-center mb-2">
-                <Clock className="mr-2 h-4 w-4" />
-                <span>{event.time}</span>
-              </div>
-              <div className="flex items-center">
-                <MapPin className="mr-2 h-4 w-4" />
-                <span>{event.location}</span>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full">View Details</Button>
-            </CardFooter>
-          </Card>
-        ))}
+      {/* Events Grid */}
+      {loading ? (
+        <div className="w-full h-64 flex items-center justify-center">
+          <LoaderCircle size={30} className="animate-spin" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {allEvents?.map((event) => (
+            <EventCard
+              key={event?._id}
+              title={event?.name}
+              description={event?.description}
+              location={event?.location}
+              date={event?.date}
+              time={event?.time}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      <div className="flex justify-center items-center gap-4 mt-8">
+        <Button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          variant="outline"
+        >
+          Previous
+        </Button>
+        <span className="text-lg font-medium">Page {currentPage}</span>
+        <Button
+          onClick={handleNextPage}
+          disabled={loading || allEvents.length < limit}
+          variant="outline"
+        >
+          Next
+        </Button>
       </div>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious href="#" />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="#">1</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="#" />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

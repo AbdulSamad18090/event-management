@@ -20,54 +20,11 @@ import {
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { EventCard } from "@/components/ui/event-card";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllEvents } from "@/lib/features/eventSlice";
+import { LoaderCircle } from "lucide-react";
 
-// Events Data
-const events = [
-  {
-    id: 1,
-    title: "Tech Conference 2023",
-    date: "August 15-17, 2023",
-    location: "San Francisco, CA",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 2,
-    title: "Music Festival",
-    date: "September 1-3, 2023",
-    location: "Austin, TX",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 3,
-    title: "Food & Wine Expo",
-    date: "October 5-7, 2023",
-    location: "New York, NY",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 4,
-    title: "Startup Meetup",
-    date: "November 20, 2023",
-    location: "Los Angeles, CA",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 5,
-    title: "Art Exhibition",
-    date: "December 10-15, 2023",
-    location: "Seattle, WA",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-  {
-    id: 6,
-    title: "Sports Tournament",
-    date: "January 5-7, 2024",
-    location: "Chicago, IL",
-    image: "/placeholder.svg?height=400&width=600",
-  },
-];
-
-// Helper Function: Split events into chunks
+// Helper function to chunk events
 const chunkEvents = (array, size) => {
   const chunks = [];
   for (let i = 0; i < array.length; i += size) {
@@ -77,28 +34,33 @@ const chunkEvents = (array, size) => {
 };
 
 export default function UpcomingEvents() {
+  const dispatch = useDispatch();
+  const { allEvents, loading } = useSelector((state) => state.event);
   const [chunkSize, setChunkSize] = useState(2); // Default chunk size for small screens
   const [eventChunks, setEventChunks] = useState(
-    chunkEvents(events, chunkSize)
+    chunkEvents(allEvents, chunkSize)
   );
 
-  // Adjust chunk size based on screen width
+  useEffect(() => {
+    dispatch(fetchAllEvents({ page: 1, limit: 10 }));
+  }, [dispatch]);
+
+  // Update chunk size based on screen width
   useEffect(() => {
     const updateChunkSize = () => {
       const screenWidth = window.innerWidth;
-      const newChunkSize = screenWidth >= 1024 ? 3 : 2; // 3 for large screens, 1 for small screens
+      const newChunkSize = screenWidth >= 1024 ? 3 : 2; // 3 for large screens, 2 for small screens
       setChunkSize(newChunkSize);
-      setEventChunks(chunkEvents(events, newChunkSize));
     };
 
     updateChunkSize(); // Set initial chunk size
     window.addEventListener("resize", updateChunkSize);
 
-    // Initialize AOS when the component mounts
+    // Initialize AOS
     AOS.init({
-      duration: 1000, // Animation duration
-      once: true, // Animate only once
-      disable: "mobile", // Disable on mobile devices (optional)
+      duration: 1000,
+      once: true,
+      disable: "mobile",
     });
 
     return () => {
@@ -106,80 +68,59 @@ export default function UpcomingEvents() {
     };
   }, []);
 
+  useEffect(() => {
+    setEventChunks(chunkEvents(allEvents, chunkSize));
+  }, [allEvents, chunkSize]);
+
   return (
-    <section className="py-16 bg-muted/0">
+    <section className="py-16 bg-muted/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2
           className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-300 mb-8"
-          data-aos="fade-right" // Animation for section title
+          data-aos="fade-right"
         >
           Featured Events
         </h2>
 
-        <Carousel>
-          <CarouselContent>
-            {eventChunks.map((chunk, index) => (
-              <CarouselItem key={index}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-                  {chunk.map((event, i) => (
-                    <div
-                      // className="flex gap-4 bg-white dark:bg-neutral-900 shadow-md rounded-lg"
-                      key={i}
-                      data-aos="fade-up" // Fade-up animation for each event
-                      data-aos-delay={i * 100} // Stagger the animation
-                    >
-                      <EventCard
-                        title={event.title}
-                        date={event.date}
-                        time="9:00 AM - 4:00 PM"
-                        location={event.location}
-                        description="Explore the latest advancements in AI and their applications in healthcare with leading experts in the field."
-                      />
-                    </div>
-                    // <div
-                    //   key={event.id}
-                    //   data-aos="fade-up" // Fade-in animation for each event card
-                    //   data-aos-delay={index * 200} // Add a delay to stagger the animations
-                    // >
-                    //   <Card>
-                    //     <CardHeader className="p-0 bg-neutral-200 rounded-t-xl">
-                    //       <Image
-                    //         src={event.image}
-                    //         alt={event.title}
-                    //         width={600}
-                    //         height={400}
-                    //         className="rounded-t-[0.9rem] dark:bg-neutral-800"
-                    //       />
-                    //     </CardHeader>
-                    //     <CardContent className="mt-4">
-                    //       <CardTitle className="text-lg md:text-xl">
-                    //         {event.title}
-                    //       </CardTitle>
-                    //       <p className="text-sm text-neutral-500 mt-2">
-                    //         {event.date}
-                    //       </p>
-                    //       <p className="text-sm text-neutral-500">
-                    //         {event.location}
-                    //       </p>
-                    //     </CardContent>
-                    //     <CardFooter>
-                    //       <Button className="w-full">View Details</Button>
-                    //     </CardFooter>
-                    //   </Card>
-                    // </div>
-                  ))}
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <LoaderCircle size={30} className="animate-spin" />
+          </div>
+        ) : (
+          <Carousel>
+            <CarouselContent>
+              {eventChunks.map((chunk, index) => (
+                <CarouselItem key={index}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                    {chunk.map((event, i) => (
+                      <div
+                        key={event?.id || i} // Ensure unique key
+                        data-aos="fade-up"
+                        data-aos-delay={i * 100} // Stagger animation
+                      >
+                        <EventCard
+                          key={event?._id}
+                          title={event?.name}
+                          description={event?.description}
+                          location={event?.location}
+                          date={event?.date}
+                          time={event?.time}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        )}
 
         <div
           className="flex justify-center mt-10"
-          data-aos="fade-up" // Fade-in animation for the Browse All Events button
-          data-aos-delay="500" // Delay the button animation
+          data-aos="fade-up"
+          data-aos-delay="500"
         >
           <Button>Browse All Events</Button>
         </div>
