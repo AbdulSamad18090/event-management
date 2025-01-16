@@ -53,13 +53,6 @@ export default function BrowseEvents() {
     );
   }, [dispatch, currentPage, limit, filters]);
 
-  useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: true,
-    });
-  }, []);
-
   const handleSearch = () => {
     setFilters((prev) => ({
       ...prev,

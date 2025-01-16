@@ -57,12 +57,6 @@ export default function UpcomingEvents() {
     updateChunkSize(); // Set initial chunk size
     window.addEventListener("resize", updateChunkSize);
 
-    // Initialize AOS
-    AOS.init({
-      duration: 1000,
-      once: true,
-    });
-
     return () => {
       window.removeEventListener("resize", updateChunkSize);
     };
@@ -96,7 +90,7 @@ export default function UpcomingEvents() {
                       <div
                         key={event?.id || i} // Ensure unique key
                         data-aos="fade-up"
-                        data-aos-delay={i * 100} // Stagger animation
+                        data-aos-delay={i * 300} // Stagger animation
                       >
                         <EventCard
                           key={event?._id}

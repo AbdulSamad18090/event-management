@@ -82,14 +82,6 @@ const EventManagementPage = () => {
   // console.log("editing event => ", editingEvent);
 
   useEffect(() => {
-    AOS.init({
-      duration: 500, // Animation duration
-      once: true, // Animate only once
-      //  // Disable on mobile devices (optional)
-    });
-  }, []);
-
-  useEffect(() => {
     dispatch(fetchEventsOfOrganizer(session?.user?.id));
   }, [dispatch, session?.user?.id]);
 
