@@ -48,7 +48,7 @@ export default function OrganizersPage() {
   return (
     <div className="container mx-auto py-10 px-4">
       {/* Header with Search */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex md:flex-row flex-col items-center justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold">Organizers</h1>
         <div className="relative w-full max-w-xs">
           <Input
@@ -90,7 +90,7 @@ export default function OrganizersPage() {
                 <CardHeader className="flex flex-row items-center gap-4">
                   <Avatar className="h-12 w-12">
                     <AvatarImage
-                      src={organizer.image || "/default-avatar.png"} // Fallback image
+                      src={organizer.image} // Fallback image
                       alt={organizer.name}
                     />
                     <AvatarFallback>
