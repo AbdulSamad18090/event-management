@@ -98,7 +98,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Name</Label>
                       <Input
@@ -115,6 +115,15 @@ export default function ProfilePage() {
                         disabled="true"
                         placeholder="Enter your email"
                         value={session?.user?.email}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="Phone-Number">Phone Number</Label>
+                      <Input
+                        id="Phone-Number"
+                        type="phone"
+                        placeholder="Enter your phone number"
+                        value={session?.user?.contact}
                       />
                     </div>
                   </div>
