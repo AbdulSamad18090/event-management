@@ -16,12 +16,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, Camera, Dot, LoaderCircle, Lock, User } from "lucide-react";
+import {
+  Bell,
+  Camera,
+  Cog,
+  Dot,
+  LoaderCircle,
+  Lock,
+  User,
+  X,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import AccessDenied from "@/components/AccessDenied/AccessDenied";
 import { Badge } from "@/components/ui/badge";
 import { fetchOrganizer } from "../organizers/utils";
+import ImageCropper from "./_components/ImageCropper";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -36,6 +46,8 @@ export default function ProfilePage() {
     image: "",
     emailNotify: false,
   });
+  const [showCropper, setShowCropper] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchAndSetOrganizer = async () => {
@@ -88,11 +100,71 @@ export default function ProfilePage() {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) =>
-        setProfileData((prev) => ({ ...prev, image: e.target?.result }));
+      reader.onload = (e) => {
+        setSelectedImage(e.target?.result);
+        setShowCropper(true);
+      };
       reader.readAsDataURL(file);
     }
   };
+
+  const handleCropComplete = async (croppedAreaPixels) => {
+    try {
+      const croppedImage = await getCroppedImage(selectedImage, croppedAreaPixels);
+      setProfileData((prev) => ({
+        ...prev,
+        image: croppedImage, // Update the profile image with the cropped result
+      }));
+      setShowCropper(false);
+      setSelectedImage(null); // Clear the selected image after cropping
+    } catch (error) {
+      console.error("Error cropping image:", error);
+    }
+  };
+  
+  // Utility function to crop the image using canvas
+  const getCroppedImage = (imageSrc, croppedAreaPixels) => {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.src = imageSrc;
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+  
+        canvas.width = croppedAreaPixels.width;
+        canvas.height = croppedAreaPixels.height;
+  
+        ctx.drawImage(
+          image,
+          croppedAreaPixels.x,
+          croppedAreaPixels.y,
+          croppedAreaPixels.width,
+          croppedAreaPixels.height,
+          0,
+          0,
+          croppedAreaPixels.width,
+          croppedAreaPixels.height
+        );
+  
+        // Convert the canvas content to a base64-encoded image
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Canvas is empty"));
+              return;
+            }
+            const croppedImageUrl = URL.createObjectURL(blob);
+            resolve(croppedImageUrl);
+          },
+          "image/jpeg",
+          1
+        );
+      };
+  
+      image.onerror = (error) => reject(error);
+    });
+  };
+  
 
   function getInitials(name) {
     return name
@@ -119,10 +191,20 @@ export default function ProfilePage() {
             <Dot />
             <Badge
               variant={isEditable ? "outline" : ""}
-              className="cursor-pointer w-16 justify-center hover:scale-110 transition-all hover:shadow-lg"
+              className="cursor-pointer w-20 justify-center hover:scale-110 transition-all hover:shadow-lg"
               onClick={toggleEdit}
             >
-              {isEditable ? "Cancel" : "Edit"}
+              {isEditable ? (
+                <span className="flex items-center gap-1">
+                  <X size={15} />
+                  Cancel
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  <Cog size={15} />
+                  Edit
+                </span>
+              )}
             </Badge>
           </CardTitle>
           <CardDescription>
@@ -139,7 +221,7 @@ export default function ProfilePage() {
             <TabsContent value="general">
               <div className="space-y-8">
                 <div className="flex items-center space-x-4">
-                  <Avatar className="w-24 h-24">
+                  <Avatar className="w-24 h-24 rounded-full">
                     <AvatarImage src={profileData.image} />
                     <AvatarFallback>
                       {getInitials(profileData.name)}
@@ -149,7 +231,7 @@ export default function ProfilePage() {
                     <Button variant="outline" className="relative">
                       <input
                         type="file"
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                         onChange={handleAvatarChange}
                         accept="image/*"
                         disabled={!isEditable}
@@ -157,6 +239,16 @@ export default function ProfilePage() {
                       <Camera className="mr-2 h-4 w-4" />
                       Change Avatar
                     </Button>
+                    {showCropper && (
+                      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-background rounded-lg p-6 w-full max-w-md">
+                          <ImageCropper
+                            image={selectedImage}
+                            onCropComplete={handleCropComplete}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-4">
