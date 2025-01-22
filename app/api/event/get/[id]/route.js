@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Validate ID (optional, depending on your use case)
     if (!id) {

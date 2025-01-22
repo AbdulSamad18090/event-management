@@ -82,8 +82,12 @@ const EventManagementPage = () => {
   // console.log("editing event => ", editingEvent);
 
   useEffect(() => {
-    dispatch(fetchEventsOfOrganizer(session?.user?.id));
-  }, [dispatch, session?.user?.id]);
+    AOS.init({ once: true });
+  }, []);
+
+  useEffect(() => {
+    dispatch(fetchEventsOfOrganizer(session?.user.id));
+  }, [dispatch, session?.user.id]);
 
   const getDate = (timestamp) => {
     const date = new Date(timestamp);

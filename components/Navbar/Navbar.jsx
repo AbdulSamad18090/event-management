@@ -143,26 +143,42 @@ export default function Header() {
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem>
-                      <div className="flex items-center gap-4 rounded-lg cursor-pointer">
+                      <div
+                        className={`flex items-center gap-4 rounded-lg ${
+                          session.user.role === "organizer" && "cursor-pointer"
+                        }`}
+                      >
                         <Avatar className="h-16 w-16 relative">
                           <AvatarImage src={session?.user.image} />
-                          <AvatarFallback className="rounded">
+                          <AvatarFallback className="rounded-full">
                             {getInitials(session?.user.name)}
                           </AvatarFallback>
-                          <ExternalLink
-                            size={40}
-                            className="absolute top-0 right-0"
-                          />
+                          {session.user.role === "organizer" && (
+                            <ExternalLink
+                              size={40}
+                              className="absolute top-0 right-0"
+                            />
+                          )}
                         </Avatar>
-
-                        <Link href={"/profile"}>
-                          <h1 className="text-xl font-">
-                            {session?.user.name}
-                          </h1>
-                          <Badge className={"w-fit rounded"}>
-                            {session?.user?.role.toUpperCase()}
-                          </Badge>
-                        </Link>
+                        {session.user.role === "organizer" ? (
+                          <Link href={"/profile"}>
+                            <h1 className="text-xl font-">
+                              {session?.user.name}
+                            </h1>
+                            <Badge className={"w-fit"}>
+                              {session?.user?.role.toUpperCase()}
+                            </Badge>
+                          </Link>
+                        ) : (
+                          <div>
+                            <h1 className="text-xl font-">
+                              {session?.user.name}
+                            </h1>
+                            <Badge className={"w-fit"}>
+                              {session?.user?.role.toUpperCase()}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -275,26 +291,43 @@ export default function Header() {
                 <SheetFooter className={"sm:justify-start"}>
                   <div className="flex items-center justify-between gap-4">
                     {session ? (
-                      <div className="flex w-full items-center gap-4 rounded-lg cursor-pointer">
+                      <div
+                        className={`flex w-full items-center gap-4 rounded-lg ${
+                          session.user.role === "organizer" && "cursor-pointer"
+                        }`}
+                      >
                         <Avatar className="h-16 w-16 relative">
                           <AvatarImage src={session?.user.image} />
-                          <AvatarFallback className="rounded">
+                          <AvatarFallback className="">
                             {getInitials(session?.user.name)}
                           </AvatarFallback>
-                          <ExternalLink
-                            size={20}
-                            className="absolute top-0 right-0"
-                          />
+                          {session.user.role === "organizer" && (
+                            <ExternalLink
+                              size={20}
+                              className="absolute top-0 right-0"
+                            />
+                          )}
                         </Avatar>
 
-                        <Link href={"/profile"}>
-                          <h1 className="text-xl font-">
-                            {session?.user.name}
-                          </h1>
-                          <Badge className={"w-fit rounded"}>
-                            {session?.user?.role.toUpperCase()}
-                          </Badge>
-                        </Link>
+                        {session.user.role === "organizer" ? (
+                          <Link href={"/profile"}>
+                            <h1 className="text-xl font-">
+                              {session?.user.name}
+                            </h1>
+                            <Badge className={"w-fit"}>
+                              {session?.user?.role.toUpperCase()}
+                            </Badge>
+                          </Link>
+                        ) : (
+                          <div>
+                            <h1 className="text-xl font-">
+                              {session?.user.name}
+                            </h1>
+                            <Badge className={"w-fit"}>
+                              {session?.user?.role.toUpperCase()}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                     ) : null}
                   </div>

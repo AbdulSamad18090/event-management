@@ -29,8 +29,6 @@ export const fetchOrganizer = async (id) => {
 
     const data = await response.json();
 
-    console.log(data);
-
     // Validate the structure of the response
     if (!data || !data.organizer) {
       throw new Error(
