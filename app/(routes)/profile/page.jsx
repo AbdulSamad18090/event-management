@@ -268,6 +268,7 @@ export default function ProfilePage() {
                       <Input
                         id="email"
                         type="email"
+                        placeholder="xyz@example.com"
                         disabled
                         value={profileData.email}
                       />
