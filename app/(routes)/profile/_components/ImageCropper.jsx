@@ -3,7 +3,7 @@ import Cropper from "react-easy-crop";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
-const ImageCropper = ({ image, onCropComplete }) => {
+const ImageCropper = ({ image, onCropComplete, isUploading }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -76,7 +76,7 @@ const ImageCropper = ({ image, onCropComplete }) => {
         </div>
 
         <Button onClick={handleSave} className="w-full">
-          Save Crop
+          {isUploading ? "Saving..." : "Save"}
         </Button>
       </div>
     </div>

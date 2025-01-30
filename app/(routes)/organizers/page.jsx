@@ -68,7 +68,7 @@ export default function OrganizersPage() {
 
   const renderOrganizerCard = (organizer) => {
     return (
-      <Card className="cursor-pointer hover:-translate-y-2 hover:shadow-lg transition-all">
+      <Card className="cursor-pointer h-full hover:-translate-y-2 hover:shadow-lg transition-all">
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="h-12 w-12">
             <AvatarImage
@@ -88,7 +88,7 @@ export default function OrganizersPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground line-clamp-2">
             {organizer.bio || "No bio available."}
           </p>
         </CardContent>
@@ -183,7 +183,7 @@ export default function OrganizersPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Phone className="h-4 w-4" />
-                      <p className="text-sm">{organizer.phone || "N/A"}</p>
+                      <p className="text-sm">{organizer.contact || "N/A"}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-center w-full">

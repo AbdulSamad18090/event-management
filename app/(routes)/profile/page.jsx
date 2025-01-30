@@ -32,6 +32,7 @@ import AccessDenied from "@/components/AccessDenied/AccessDenied";
 import { Badge } from "@/components/ui/badge";
 import { fetchOrganizer } from "../organizers/utils";
 import ImageCropper from "./_components/ImageCropper";
+import { toast } from "@/hooks/use-toast";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -48,6 +49,9 @@ export default function ProfilePage() {
   });
   const [showCropper, setShowCropper] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [organizer, setOrganizer] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const fetchAndSetOrganizer = async () => {
@@ -58,7 +62,7 @@ export default function ProfilePage() {
 
         try {
           const organizer = await fetchOrganizer(session?.user.id); // Wait for the Promise to resolve
-
+          setOrganizer(organizer);
           setProfileData({
             name: organizer?.name || "",
             email: organizer?.email || "",
@@ -110,18 +114,33 @@ export default function ProfilePage() {
 
   const handleCropComplete = async (croppedAreaPixels) => {
     try {
-      const croppedImage = await getCroppedImage(selectedImage, croppedAreaPixels);
-      setProfileData((prev) => ({
-        ...prev,
-        image: croppedImage, // Update the profile image with the cropped result
-      }));
-      setShowCropper(false);
-      setSelectedImage(null); // Clear the selected image after cropping
+      setIsUploading(true);
+      const croppedImage = await getCroppedImage(
+        selectedImage,
+        croppedAreaPixels
+      );
+
+      const formData = new FormData();
+      formData.append("file", croppedImage);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        setProfileData((prev) => ({ ...prev, image: data.url }));
+        setShowCropper(false);
+        setSelectedImage(null);
+      }
     } catch (error) {
-      console.error("Error cropping image:", error);
+      console.error("Error cropping/uploading image:", error);
+    } finally {
+      setIsUploading(false);
     }
   };
-  
+
   // Utility function to crop the image using canvas
   const getCroppedImage = (imageSrc, croppedAreaPixels) => {
     return new Promise((resolve, reject) => {
@@ -130,10 +149,10 @@ export default function ProfilePage() {
       image.onload = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-  
+
         canvas.width = croppedAreaPixels.width;
         canvas.height = croppedAreaPixels.height;
-  
+
         ctx.drawImage(
           image,
           croppedAreaPixels.x,
@@ -145,26 +164,25 @@ export default function ProfilePage() {
           croppedAreaPixels.width,
           croppedAreaPixels.height
         );
-  
-        // Convert the canvas content to a base64-encoded image
+
         canvas.toBlob(
           (blob) => {
             if (!blob) {
               reject(new Error("Canvas is empty"));
               return;
             }
-            const croppedImageUrl = URL.createObjectURL(blob);
-            resolve(croppedImageUrl);
+            resolve(
+              new File([blob], "cropped-image.jpg", { type: "image/jpeg" })
+            );
           },
           "image/jpeg",
           1
         );
       };
-  
+
       image.onerror = (error) => reject(error);
     });
   };
-  
 
   function getInitials(name) {
     return name
@@ -177,9 +195,43 @@ export default function ProfilePage() {
     setIsEditable((prev) => !prev);
   };
 
-  const handleSaveChanges = () => {
-    console.log("Saved profile data: ", profileData);
-    // Handle API call or further logic here
+  const handleSaveChanges = async () => {
+    try {
+      console.log("Saving profile data: ", profileData);
+      setIsSaving(true);
+      const response = await fetch(
+        `/api/organizer/update/${session?.user?.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(profileData),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Updated!",
+          description: "Profile updated successfully.",
+        });
+      } else {
+        toast({
+          title: "Oops!",
+          description: "An error occured during updation of your profile.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Oops!",
+        description: "An error occured during updation of your profile.",
+      });
+    } finally {
+      setIsSaving(false);
+      setIsEditable(false);
+    }
   };
 
   return (
@@ -195,7 +247,19 @@ export default function ProfilePage() {
               onClick={toggleEdit}
             >
               {isEditable ? (
-                <span className="flex items-center gap-1">
+                <span
+                  className="flex items-center gap-1"
+                  onClick={() => {
+                    setProfileData({
+                      name: organizer?.name || "",
+                      email: organizer?.email || "",
+                      contact: organizer?.contact || "",
+                      bio: organizer?.bio || "",
+                      image: organizer?.image || "",
+                      emailNotify: organizer?.emailNotify || false,
+                    });
+                  }}
+                >
                   <X size={15} />
                   Cancel
                 </span>
@@ -245,6 +309,7 @@ export default function ProfilePage() {
                           <ImageCropper
                             image={selectedImage}
                             onCropComplete={handleCropComplete}
+                            isUploading={isUploading}
                           />
                         </div>
                       </div>
@@ -342,7 +407,7 @@ export default function ProfilePage() {
         </CardContent>
         <CardFooter className="flex justify-between">
           <Button onClick={handleSaveChanges} disabled={!isEditable}>
-            Save changes
+            {isSaving ? "Please wait..." : "Save changes"}
           </Button>
         </CardFooter>
       </Card>

@@ -22,7 +22,7 @@ export default function OrganizerProfile({
         <CardTitle className="flex items-center gap-4">
           <Avatar className="w-16 h-16">
             <AvatarImage
-              src="/placeholder.svg?height=64&width=64"
+              src={organizer?.image}
               alt="Organizer"
             />
             <AvatarFallback>{getInitials(organizer?.name)}</AvatarFallback>
