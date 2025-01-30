@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import cloudinary from "@/lib/cloudinary";
-import { writeFile } from "fs/promises";
-import path from "path";
 
 export async function POST(req) {
   try {
@@ -16,16 +14,18 @@ export async function POST(req) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Save the image temporarily
-    const tempPath = path.join(process.cwd(), "public", file.name);
-    await writeFile(tempPath, buffer);
+    // Upload to Cloudinary using a stream
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: "profile_pictures" },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
 
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(tempPath, {
-      folder: "profile_pictures", // Change folder as needed
+      uploadStream.end(buffer);
     });
-
-    // console.log("Cloudinary Upload Result:", result); // Log result
 
     return NextResponse.json({ url: result.secure_url }, { status: 200 });
   } catch (error) {
