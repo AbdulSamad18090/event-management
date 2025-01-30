@@ -12,9 +12,26 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "./badge";
-import { fetchOrganizer } from "@/app/(routes)/organizers/utils";
+import { fetchOrganizer, getInitials } from "@/app/(routes)/organizers/utils";
 import Link from "next/link";
 import { Separator } from "./separator";
+import { Dialog } from "@radix-ui/react-dialog";
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./dialog";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 export function EventCard({
   title,
@@ -26,14 +43,39 @@ export function EventCard({
   pricing,
 }) {
   const [organizerName, setOrganizerName] = useState("Loading...");
+  const [organizerDetails, setOrganizerDetails] = useState(null);
+  const [quantities, setQuantities] = useState(
+    Object.keys(pricing).reduce(
+      (acc, type) => ({
+        ...acc,
+        [type]: 0,
+      }),
+      {}
+    )
+  );
 
-  console.log(pricing);
+  console.log("quantity =>", quantities);
+
+  const increment = (type) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [type]: prev[type] + 1,
+    }));
+  };
+
+  const decrement = (type) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [type]: Math.max(0, prev[type] - 1),
+    }));
+  };
 
   useEffect(() => {
     const getOrganizer = async () => {
       if (!organizer) return;
       try {
         const organizerDetail = await fetchOrganizer(organizer);
+        setOrganizerDetails(organizerDetail);
         setOrganizerName(organizerDetail?.name || "Unknown Organizer");
       } catch (error) {
         console.error("Failed to fetch organizer:", error);
@@ -60,11 +102,42 @@ export function EventCard({
           {title}
         </CardTitle>
         <CardDescription>
-          <div className="font-semibold">
+          <div className="font-semibold flex items-center gap-2">
             Organized By{" "}
-            <Link href={`/organizers/${organizer}`}>
-              <Badge variant={"outline"}>{organizerName}</Badge>
-            </Link>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <Badge
+                  variant={"outline"}
+                  className={"cursor-pointer p-1 pr-2"}
+                >
+                  <Avatar className="h-5 w-5 mr-1">
+                    <AvatarImage src={organizerDetails?.image} />
+                    <AvatarFallback>
+                      {getInitials(organizerName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {organizerName}
+                </Badge>
+              </HoverCardTrigger>
+              <Link href={`/organizers/${organizer}`}>
+                <HoverCardContent className="w-80 cursor-pointer">
+                  <div className="flex justify-between space-x-4">
+                    <Avatar>
+                      <AvatarImage src={organizerDetails?.image} />
+                      <AvatarFallback>
+                        {getInitials(organizerName)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-semibold">{organizerName}</h4>
+                      <p className="text-sm line-clamp-2 font-normal">
+                        {organizerDetails?.bio || "No bio available"}
+                      </p>
+                    </div>
+                  </div>
+                </HoverCardContent>
+              </Link>
+            </HoverCard>
           </div>
         </CardDescription>
       </CardHeader>
@@ -98,18 +171,145 @@ export function EventCard({
               <div key={index}>
                 <div className="flex justify-between items-center">
                   <Badge variant={"secondary"} className="text-sm">
-                    {type}
+                    {type.toLocaleUpperCase()}
                   </Badge>
                   <span className="font-medium ">Rs.{amount}</span>
                 </div>
-                {index < Object.entries(pricing).length - 1 && <Separator className="my-1" />}
+                {index < Object.entries(pricing).length - 1 && (
+                  <Separator className="my-1" />
+                )}
               </div>
             ))}
           </CardContent>
         </Card>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Buy Now</Button>
+        <Dialog>
+          <DialogTrigger className="w-full">
+            <Button className="w-full">Buy Now</Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-96 max-w-3xl overflow-y-auto custom-scrollbar">
+            <DialogHeader>
+              <DialogTitle>{title}</DialogTitle>
+              <DialogDescription>{description}</DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center">
+                <CalendarIcon className="w-4 h-4 mr-2" />
+                <Badge variant="outline" className="font-normal">
+                  {formatTimestamp(date?.from)}
+                </Badge>
+                <ArrowRight size={15} />
+                <Badge className="font-normal">
+                  {formatTimestamp(date?.to)}
+                </Badge>
+              </div>
+              <div className="flex items-center">
+                <ClockIcon className="w-4 h-4 mr-2" />
+                <Badge variant="outline" className="font-normal">
+                  {time?.from || "TBD"}
+                </Badge>
+                <ArrowRight size={15} />
+                <Badge className="font-normal">{time?.to || "TBD"}</Badge>
+              </div>
+              <div className="flex items-center">
+                <MapPinIcon className="w-4 h-4 mr-2" />
+                <span>{location || "TBD"}</span>
+              </div>
+            </div>
+            <div className="font-semibold flex items-center gap-2">
+              Organized By{" "}
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Badge
+                    variant={"outline"}
+                    className={"cursor-pointer p-1 pr-2"}
+                  >
+                    <Avatar className="h-5 w-5 mr-1">
+                      <AvatarImage src={organizerDetails?.image} />
+                      <AvatarFallback>
+                        {getInitials(organizerName)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {organizerName}
+                  </Badge>
+                </HoverCardTrigger>
+                <Link href={`/organizers/${organizer}`}>
+                  <HoverCardContent className="w-80 cursor-pointer">
+                    <div className="flex justify-between space-x-4">
+                      <Avatar>
+                        <AvatarImage src={organizerDetails?.image} />
+                        <AvatarFallback>
+                          {getInitials(organizerName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="space-y-1">
+                        <h4 className="text-sm font-semibold">
+                          {organizerName}
+                        </h4>
+                        <p className="text-sm line-clamp-2 font-normal">
+                          {organizerDetails?.bio || "No bio available"}
+                        </p>
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </Link>
+              </HoverCard>
+            </div>
+            <Card className="w-full mt-4 p-0">
+              <CardContent className="p-2">
+                {Object.entries(pricing).map(([type, amount], index) => (
+                  <div key={type}>
+                    <div className="grid grid-cols-3 items-center gap-2 w-full px-4 py-2">
+                      <Badge variant="secondary" className="text-sm w-fit">
+                        {type.toLocaleUpperCase()}
+                      </Badge>
+
+                      <span className="font-medium text-center">
+                        Rs.{amount}
+                      </span>
+
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => decrement(type)}
+                        >
+                          -
+                        </Button>
+
+                        <span className="w-8 text-center">
+                          {quantities[type]}
+                        </span>
+
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => increment(type)}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </div>
+                    {index < Object.entries(pricing).length - 1 && (
+                      <Separator className="my-1" />
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            <DialogFooter>
+              <DialogClose>
+                <Button variant="outline" className="mr-2">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button>Add To Card</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardFooter>
     </Card>
   );
