@@ -99,6 +99,8 @@ export default function UpcomingEvents() {
                           location={event?.location}
                           date={event?.date}
                           time={event?.time}
+                          organizer={event?.organizer}
+                          pricing={event?.pricing}
                         />
                       </div>
                     ))}

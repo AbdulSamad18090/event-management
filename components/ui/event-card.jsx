@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "./badge";
 import { fetchOrganizer } from "@/app/(routes)/organizers/utils";
 import Link from "next/link";
+import { Separator } from "./separator";
 
 export function EventCard({
   title,
@@ -22,8 +23,11 @@ export function EventCard({
   location,
   description,
   organizer,
+  pricing,
 }) {
   const [organizerName, setOrganizerName] = useState("Loading...");
+
+  console.log(pricing);
 
   useEffect(() => {
     const getOrganizer = async () => {
@@ -87,10 +91,25 @@ export function EventCard({
             <span>{location || "TBD"}</span>
           </div>
         </div>
-        <p className="mt-4 text-sm custom-line-clamp-3">{description}</p>
+        <p className="mt-4 text-sm line-clamp-2">{description}</p>
+        <Card className="w-full mt-4 p-0">
+          <CardContent className="p-2">
+            {Object.entries(pricing).map(([type, amount], index) => (
+              <div key={index}>
+                <div className="flex justify-between items-center">
+                  <Badge variant={"secondary"} className="text-sm">
+                    {type}
+                  </Badge>
+                  <span className="font-medium ">Rs.{amount}</span>
+                </div>
+                {index < Object.entries(pricing).length - 1 && <Separator className="my-1" />}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Buy Ticket now</Button>
+        <Button className="w-full">Buy Now</Button>
       </CardFooter>
     </Card>
   );

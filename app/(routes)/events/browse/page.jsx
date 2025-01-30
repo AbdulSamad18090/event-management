@@ -170,6 +170,7 @@ export default function BrowseEvents() {
                 date={event?.date}
                 time={event?.time}
                 organizer={event?.organizer}
+                pricing={event?.pricing}
               />
             </div>
           ))}

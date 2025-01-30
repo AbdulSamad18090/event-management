@@ -220,7 +220,7 @@ const RegisterForm = () => {
           )}
         </div>
         <div>
-          <Label htmlFor="role">Select Your Role</Label>
+          <Label htmlFor="role">Register Yourself As</Label>
           <Select value={formData.role} onValueChange={handleRoleChange}>
             <SelectTrigger>
               <SelectValue placeholder="Choose a role" />
