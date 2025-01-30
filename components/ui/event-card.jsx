@@ -186,7 +186,22 @@ export function EventCard({
       <CardFooter>
         <Dialog>
           <DialogTrigger className="w-full">
-            <Button className="w-full">Buy Now</Button>
+            <Button
+              className="w-full"
+              onClick={() => {
+                setQuantities(
+                  Object.keys(pricing).reduce(
+                    (acc, type) => ({
+                      ...acc,
+                      [type]: 0,
+                    }),
+                    {}
+                  )
+                );
+              }}
+            >
+              Buy Now
+            </Button>
           </DialogTrigger>
           <DialogContent className="max-h-96 max-w-3xl overflow-y-auto custom-scrollbar">
             <DialogHeader>
