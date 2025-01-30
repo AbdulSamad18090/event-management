@@ -169,6 +169,7 @@ export default function BrowseEvents() {
                 location={event?.location}
                 date={event?.date}
                 time={event?.time}
+                organizer={event?.organizer}
               />
             </div>
           ))}
