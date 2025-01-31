@@ -37,15 +37,15 @@ const CartPage = () => {
             </div>
             <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
             <p className="text-center text-muted-foreground mb-6">
-              Looks like you haven't added any tickets to your cart yet. Explore
-              our events and find something you'll love!
+              Looks like you haven&apos;t added any tickets to your cart yet.
+              Explore our events and find something you&apos;ll love!
             </p>
-            <Link href={"/events/browse"}><Button
-              className="group"
-            >
-              Browse Events
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button></Link>
+            <Link href={"/events/browse"}>
+              <Button className="group">
+                Browse Events
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       ) : (
