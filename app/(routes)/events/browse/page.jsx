@@ -164,6 +164,7 @@ export default function BrowseEvents() {
           {allEvents?.map((event, i) => (
             <div key={event?._id} data-aos="fade-up" data-aos-delay={i * 300}>
               <EventCard
+                eventId={event?._id}
                 title={event?.name}
                 description={event?.description}
                 location={event?.location}

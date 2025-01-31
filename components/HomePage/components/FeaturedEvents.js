@@ -94,6 +94,7 @@ export default function UpcomingEvents() {
                       >
                         <EventCard
                           key={event?._id}
+                          eventId={event?._id}
                           title={event?.name}
                           description={event?.description}
                           location={event?.location}

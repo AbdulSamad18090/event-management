@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowRight, CalendarIcon, ClockIcon, MapPinIcon } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarIcon,
+  ClockIcon,
+  MapPinIcon,
+  MinusCircle,
+  PlusCircle,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -32,8 +39,12 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "@/lib/features/cartSlice";
+import { toast } from "@/hooks/use-toast";
 
 export function EventCard({
+  eventId,
   title,
   date,
   time,
@@ -54,7 +65,7 @@ export function EventCard({
     )
   );
 
-  console.log("quantity =>", quantities);
+  const dispatch = useDispatch();
 
   const increment = (type) => {
     setQuantities((prev) => ({
@@ -68,6 +79,14 @@ export function EventCard({
       ...prev,
       [type]: Math.max(0, prev[type] - 1),
     }));
+  };
+
+  const handleAddToCart = () => {
+    dispatch(addToCart({ eventId, title, pricing, quantities }));
+    toast({
+      title: "Ticket Added to Cart",
+      description: "You have added the ticket to your cart.",
+    });
   };
 
   useEffect(() => {
@@ -291,7 +310,7 @@ export function EventCard({
                           className="h-8 w-8"
                           onClick={() => decrement(type)}
                         >
-                          -
+                          <MinusCircle className="h-4 w-4" />
                         </Button>
 
                         <span className="w-8 text-center">
@@ -304,7 +323,7 @@ export function EventCard({
                           className="h-8 w-8"
                           onClick={() => increment(type)}
                         >
-                          +
+                          <PlusCircle className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -321,7 +340,7 @@ export function EventCard({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button>Add To Card</Button>
+              <Button onClick={handleAddToCart}>Add To Card</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
