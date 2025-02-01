@@ -40,11 +40,13 @@ export async function POST(req) {
         }))
       );
 
+      // 🛑 Fix: Ensure all required fields exist
       const transaction = new Transaction({
-        email: metadata.customerEmail,
+        customerEmail: metadata.customerEmail || session.customer_email, // Get email from metadata or session
         tickets: formattedTickets, // Store parsed tickets
         eventId: metadata.eventId,
-        amount: session.amount_total / 100, // Convert cents to PKR
+        totalAmount: session.amount_total / 100, // Convert cents to PKR
+        stripeSessionId: session.id, // Store Stripe session ID
         status: session.payment_status,
       });
 
