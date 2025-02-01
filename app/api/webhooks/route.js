@@ -1,55 +1,60 @@
-import { NextResponse } from "next/server";
-import Stripe from "stripe";
-import mongoose from "mongoose";
-import Transaction from "@/lib/models/Transaction";
 import dbConnect from "@/lib/db-connection/DbConnection";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+import Transaction from "@/lib/models/Transaction";
+import Stripe from "stripe";
 
 export async function POST(req) {
-  const payload = await req.text();
-  const sig = req.headers.get("stripe-signature");
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
   try {
-    const event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
+    const sig = req.headers.get("stripe-signature");
+    const rawBody = await req.text(); // Get raw body for Stripe verification
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
 
     if (event.type === "checkout.session.completed") {
+      await dbConnect(); // Ensure database connection
+
       const session = event.data.object;
+      const metadata = session.metadata;
 
-      console.log("Received Stripe session:", session);
-
-      const metadata = session.metadata || {};
-      const tickets = metadata.tickets ? JSON.parse(metadata.tickets) : [];
-
-      if (!metadata.customerEmail || tickets.length === 0) {
-        console.error("Missing required fields in metadata.");
-        return NextResponse.json(
-          { error: "Invalid transaction data" },
-          { status: 400 }
-        );
+      let tickets = [];
+      try {
+        tickets = JSON.parse(metadata.tickets);
+      } catch (error) {
+        console.error("Error parsing tickets metadata:", error);
       }
 
-      // Connect to MongoDB
-      await dbConnect();
+      // Ensure tickets array is not empty and contains required fields
+      if (!tickets.length || !tickets[0].tickets?.length) {
+        console.error("Invalid ticket data:", tickets);
+        return new Response("Invalid ticket data", { status: 400 });
+      }
 
-      // Store transaction
+      // Flatten tickets array
+      const formattedTickets = tickets.flatMap((event) =>
+        event.tickets.map((ticket) => ({
+          eventId: event.eventId,
+          name: event.name,
+          type: ticket.type,
+          price: ticket.price,
+          qty: ticket.qty,
+        }))
+      );
+
       const transaction = new Transaction({
-        stripeSessionId: session.id,
-        customerEmail: metadata.customerEmail, // Now correctly included
-        eventId: metadata.eventId || "unknown",
-        tickets,
-        totalAmount: session.amount_total / 100, // Convert cents to PKR
-        status: "paid",
+        email: metadata.customerEmail,
+        tickets: formattedTickets, // Store parsed tickets
+        eventId: metadata.eventId,
+        amount: session.amount_total / 100, // Convert cents to PKR
+        status: session.payment_status,
       });
 
       await transaction.save();
-      console.log("Transaction stored successfully!");
+      console.log("Transaction saved to MongoDB:", transaction);
     }
 
-    return NextResponse.json({ received: true });
-  } catch (err) {
-    console.error("Webhook error:", err.message);
-    return NextResponse.json({ error: "Webhook Error" }, { status: 400 });
+    return new Response("Webhook received", { status: 200 });
+  } catch (error) {
+    console.error("Webhook error:", error);
+    return new Response("Webhook handler failed", { status: 500 });
   }
 }
