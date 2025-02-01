@@ -15,6 +15,7 @@ const transporter = nodemailer.createTransport({
 export async function POST(req) {
   try {
     const transaction = await req.json();
+    console.log(transaction)
 
     if (!transaction?.customerEmail) {
       return NextResponse.json(
