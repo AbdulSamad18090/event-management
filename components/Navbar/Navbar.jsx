@@ -3,11 +3,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   CalendarDays,
+  CreditCard,
   ExternalLink,
   LoaderCircle,
   LogOut,
   Menu,
   ShoppingBag,
+  TicketCheck,
 } from "lucide-react";
 import {
   Sheet,
@@ -90,7 +92,7 @@ export default function Header() {
                   <NavigationMenu key={i}>
                     <NavigationMenuList>
                       <NavigationMenuItem>
-                        <NavigationMenuTrigger>
+                        <NavigationMenuTrigger className="bg-transparent">
                           {item.name}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
@@ -99,9 +101,15 @@ export default function Header() {
                               <Link
                                 key={i}
                                 href={submenu.url}
-                                className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded-md cursor-pointer"
+                                className="hover:bg-neutral-100 dark:hover:bg-accent p-2 rounded-md cursor-pointer"
                               >
-                                <NavigationMenuLink>
+                                <NavigationMenuLink className="flex items-center gap-2">
+                                  {submenu.name === "My Tickets" && (
+                                    <TicketCheck />
+                                  )}
+                                  {submenu.name === "My Transactions" && (
+                                    <CreditCard />
+                                  )}
                                   {submenu.name}
                                 </NavigationMenuLink>
                               </Link>
@@ -246,18 +254,25 @@ export default function Header() {
                             <NavigationMenu key={i}>
                               <NavigationMenuList>
                                 <NavigationMenuItem>
-                                  <NavigationMenuTrigger>
+                                  <NavigationMenuTrigger className="bg-transparent">
                                     {item.name}
                                   </NavigationMenuTrigger>
                                   <NavigationMenuContent>
-                                    <ul className="grid grid-cols-1 w-[200px] gap-3 p-4 ">
+                                    <ul className="grid grid-cols-1 w-[200px] gap-3 p-3">
                                       {item?.submenus.map((submenu, i) => (
                                         <Link
                                           key={i}
                                           href={submenu.url}
-                                          className="hover:bg-neutral-100 dark:hover:bg-neutral-800 p-3 rounded-md cursor-pointer"
+                                          className="hover:bg-neutral-100 dark:hover:bg-accent p-3 rounded-md cursor-pointer"
                                         >
-                                          <NavigationMenuLink>
+                                          <NavigationMenuLink className="flex items-center gap-2">
+                                            {submenu.name === "My Tickets" && (
+                                              <TicketCheck />
+                                            )}
+                                            {submenu.name ===
+                                              "My Transactions" && (
+                                              <CreditCard />
+                                            )}
                                             {submenu.name}
                                           </NavigationMenuLink>
                                         </Link>

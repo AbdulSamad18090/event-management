@@ -24,8 +24,18 @@ export const attendeeMenu = [
     submenus: [],
   },
   {
-    name: "My Tickets",
-    url: "/my-tickets",
-    submenus: [],
+    name: "View",
+    submenus: [
+      {
+        name: "My Tickets",
+        url: "/my-tickets",
+        submenus: [],
+      },
+      {
+        name: "My Transactions",
+        url: "/my-transactions",
+        submenus: [],
+      },
+    ],
   },
 ];
