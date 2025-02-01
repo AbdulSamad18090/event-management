@@ -23,6 +23,10 @@ export async function POST(req) {
       payment_method_types: ["card"],
       mode: "payment",
       line_items,
+      metadata: {
+        tickets: JSON.stringify(tickets), // Store ticket data
+        eventId: tickets[0]?.eventId || "unknown",
+      },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
     });
