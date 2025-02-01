@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import mongoose from "mongoose";
 import Transaction from "@/lib/models/Transaction";
+import dbConnect from "@/lib/db-connection/DbConnection";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -23,11 +24,14 @@ export async function POST(req) {
 
       if (!metadata.customerEmail || tickets.length === 0) {
         console.error("Missing required fields in metadata.");
-        return NextResponse.json({ error: "Invalid transaction data" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid transaction data" },
+          { status: 400 }
+        );
       }
 
       // Connect to MongoDB
-      await mongoose.connect(process.env.MONGODB_URI);
+      await dbConnect();
 
       // Store transaction
       const transaction = new Transaction({
