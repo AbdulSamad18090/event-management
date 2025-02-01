@@ -113,7 +113,7 @@ const RegisterForm = () => {
     try {
       // Send registration request to your API
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/register`,
+        `/api/auth/register`,
         {
           method: "POST",
           headers: {

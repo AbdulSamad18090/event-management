@@ -7,6 +7,7 @@ export async function POST(req) {
   try {
     // Parse the request body (JSON data)
     const { name, email, password, role } = await req.json();
+    console.log({ name: name, email: email, password: password, role: role });
 
     // Connect to the database
     await dbConnect();
@@ -15,7 +16,10 @@ export async function POST(req) {
     const existingUser = await User.findOne({ email }); // Use await here
     if (existingUser) {
       // Return a 400 status with an error message if the user exists
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 400 }
+      );
     }
 
     // Hash the password before saving the user
@@ -42,6 +46,9 @@ export async function POST(req) {
   } catch (error) {
     // Handle errors and log them
     console.error("Error during registration:", error);
-    return NextResponse.json({ error: "An error occurred during registration." }, { status: 500 });
+    return NextResponse.json(
+      { error: "An error occurred during registration." },
+      { status: 500 }
+    );
   }
 }
