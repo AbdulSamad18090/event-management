@@ -132,7 +132,7 @@ const CreateEventPage = () => {
     setSubmitting(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/event/create`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/event/create`,
         {
           method: "POST",
           headers: {

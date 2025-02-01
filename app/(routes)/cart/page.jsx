@@ -14,10 +14,15 @@ import { ArrowRight, ShoppingCart, Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { removeFromCart } from "@/lib/features/cartSlice";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
+import CheckoutButton from "@/components/CheckoutButton/CheckoutButton";
 
 const CartPage = () => {
   const { items } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
+  const { data: session } = useSession();
 
   // Calculate total price for all events (price * quantity)
   const total = items.reduce(
@@ -25,6 +30,15 @@ const CartPage = () => {
       sum + item.tickets.reduce((subtotal, t) => subtotal + t.price * t.qty, 0),
     0
   );
+
+  const handleCheckout = () => {
+    if (!session) {
+      toast({
+        variant: "destructive",
+        title: "Please sign in first to checkout",
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto min-h-96 p-4">
@@ -111,7 +125,17 @@ const CartPage = () => {
               <span>Rs.{total.toFixed(2)}</span>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Proceed to Checkout</Button>
+              <CheckoutButton
+                tickets={items.map((item) => ({
+                  eventId: item.eventId, // Event ID
+                  name: item.title,
+                  tickets: item.tickets.map((ticket) => ({
+                    type: ticket.type, // Ticket type (e.g., VIP, General)
+                    price: ticket.price, // Price per ticket
+                    qty: ticket.qty, // Quantity of tickets
+                  })),
+                }))}
+              />
             </CardFooter>
           </Card>
         </div>

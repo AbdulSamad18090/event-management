@@ -1,0 +1,39 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "../ui/button";
+import { clearCart } from "@/lib/features/cartSlice";
+import { useDispatch } from "react-redux";
+
+export default function CheckoutButton({ tickets }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tickets }),
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url; // Redirect to Stripe Checkout page
+      } else {
+        throw new Error(data.error || "Payment failed");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button onClick={handleCheckout} disabled={loading} className="w-full">
+      {loading ? "Please wait..." : "Proceed to checkout"}
+    </Button>
+  );
+}
