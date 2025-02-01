@@ -11,6 +11,9 @@ export async function POST(req) {
     const event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
 
     if (event.type === "checkout.session.completed") {
+      // ✅ Respond to Stripe IMMEDIATELY
+      new Response("Webhook received", { status: 200 });
+
       await dbConnect(); // Ensure database connection
 
       const session = event.data.object;
@@ -23,13 +26,11 @@ export async function POST(req) {
         console.error("Error parsing tickets metadata:", error);
       }
 
-      // Ensure tickets array is not empty and contains required fields
       if (!tickets.length || !tickets[0].tickets?.length) {
         console.error("Invalid ticket data:", tickets);
-        return new Response("Invalid ticket data", { status: 400 });
+        return;
       }
 
-      // Flatten tickets array
       const formattedTickets = tickets.flatMap((event) =>
         event.tickets.map((ticket) => ({
           eventId: event.eventId,
@@ -40,17 +41,17 @@ export async function POST(req) {
         }))
       );
 
-      // 🛑 Fix: Ensure all required fields exist
-      const transaction = new Transaction({
-        customerEmail: metadata.customerEmail || session.customer_email, // Get email from metadata or session
-        tickets: formattedTickets, // Store parsed tickets
+      // ✅ Run DB Save Operation in Background (No Response Delay)
+      Transaction.create({
+        customerEmail: metadata.customerEmail || session.customer_email,
+        tickets: formattedTickets,
         eventId: metadata.eventId,
-        totalAmount: session.amount_total / 100, // Convert cents to PKR
-        stripeSessionId: session.id, // Store Stripe session ID
+        totalAmount: session.amount_total / 100,
+        stripeSessionId: session.id,
         status: session.payment_status,
-      });
-
-      await transaction.save();
+      })
+        .then(() => console.log("Transaction saved successfully"))
+        .catch((err) => console.error("Database save error:", err));
     }
 
     return new Response("Webhook received", { status: 200 });
