@@ -9,18 +9,11 @@ const EventTicket = ({ transaction }) => {
     });
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount / 100);
-  };
-
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-lg overflow-hidden shadow-lg">
-      <div className="bg-blue-600 p-6 text-white">
+      <div className="bg-orange-600 p-6 text-white">
         <h1 className="text-3xl font-bold text-center">Event Ticket</h1>
-        <p className="text-center mt-2 text-blue-100">
+        <p className="text-center mt-2 text-orange-100">
           Your gateway to an amazing experience
         </p>
       </div>
@@ -28,7 +21,7 @@ const EventTicket = ({ transaction }) => {
       <div className="p-6">
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800">Event Details</h2>
-          <p className="text-gray-600 mt-2">Event ID: {transaction.eventId}</p>
+          {/* <p className="text-gray-600 mt-2">Event ID: {transaction.eventId}</p> */}
           <p className="text-gray-600">
             Date: {formatDate(transaction.createdAt)}
           </p>
@@ -45,7 +38,7 @@ const EventTicket = ({ transaction }) => {
                 {ticket.qty} {ticket.qty > 1 ? "tickets" : "ticket"}
               </p>
               <p className="text-gray-600 text-sm">
-                Price per ticket: {formatCurrency(ticket.price)}
+                Price per ticket: Rs.{ticket.price}
               </p>
             </div>
           ))}
@@ -54,8 +47,8 @@ const EventTicket = ({ transaction }) => {
         <div className="border-t pt-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-700 font-medium">Total Amount:</span>
-            <span className="text-2xl font-bold text-blue-600">
-              {formatCurrency(transaction.totalAmount)}
+            <span className="text-2xl font-bold text-orange-600">
+              Rs.{transaction.totalAmount}
             </span>
           </div>
         </div>

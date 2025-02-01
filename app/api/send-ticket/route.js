@@ -28,7 +28,7 @@ export async function POST(req) {
 
     // Send email
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: process.env.SMTP_USER,
       to: transaction.customerEmail,
       subject: "Your Event Ticket 🎟️",
       html: emailHtml,
