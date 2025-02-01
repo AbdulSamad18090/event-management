@@ -2,14 +2,13 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import mongoose from "mongoose";
 import Transaction from "@/lib/models/Transaction";
-import dbConnect from "@/lib/db-connection/DbConnection";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   const payload = await req.text();
   const sig = req.headers.get("stripe-signature");
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET; // Set this in .env
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   try {
     const event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
@@ -17,26 +16,31 @@ export async function POST(req) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
 
+      console.log("Received Stripe session:", session);
+
+      const metadata = session.metadata || {};
+      const tickets = metadata.tickets ? JSON.parse(metadata.tickets) : [];
+
+      if (!metadata.customerEmail || tickets.length === 0) {
+        console.error("Missing required fields in metadata.");
+        return NextResponse.json({ error: "Invalid transaction data" }, { status: 400 });
+      }
+
       // Connect to MongoDB
-      //   await mongoose.connect(process.env.MONGODB_URI);
-      await dbConnect();
+      await mongoose.connect(process.env.MONGODB_URI);
 
-      // Extract ticket info from session metadata (if stored)
-      const tickets = session.metadata
-        ? JSON.parse(session.metadata.tickets)
-        : [];
-
-      // Store transaction in MongoDB
+      // Store transaction
       const transaction = new Transaction({
         stripeSessionId: session.id,
-        customerEmail: session.customer_email,
-        eventId: session.metadata?.eventId || "unknown",
+        customerEmail: metadata.customerEmail, // Now correctly included
+        eventId: metadata.eventId || "unknown",
         tickets,
-        totalAmount: session.amount_total / 100, // Convert from cents
+        totalAmount: session.amount_total / 100, // Convert cents to PKR
         status: "paid",
       });
 
       await transaction.save();
+      console.log("Transaction stored successfully!");
     }
 
     return NextResponse.json({ received: true });

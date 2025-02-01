@@ -2,19 +2,27 @@
 
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { clearCart } from "@/lib/features/cartSlice";
-import { useDispatch } from "react-redux";
+import { useSession } from "next-auth/react"; // Import session hook
 
 export default function CheckoutButton({ tickets }) {
   const [loading, setLoading] = useState(false);
+  const { data: session } = useSession(); // Get user session
 
   const handleCheckout = async () => {
+    if (!session?.user?.email) {
+      alert("Please sign in to proceed with the payment.");
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tickets }),
+        body: JSON.stringify({
+          tickets,
+          customerEmail: session.user.email, // Pass user email
+        }),
       });
 
       const data = await response.json();
