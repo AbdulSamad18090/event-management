@@ -33,77 +33,117 @@ import AccessDenied from "@/components/AccessDenied/AccessDenied";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { fetchTransactions } from "./utils";
+import { fetchEvent } from "../events/utils";
 
 const TransactionsPage = () => {
   const { data: session, status } = useSession();
-  const [loading, setLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isTransactionsLoading, setIsTransactionsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [eventNames, setEventNames] = useState({});
+
+  console.log(transactions);
 
   useEffect(() => {
     if (status === "loading") {
-      setLoading(true);
+      setIsPageLoading(true);
     } else {
-      setLoading(false);
+      setIsPageLoading(false);
       if (!session || session?.user.role === "organizer") {
         router.push("/");
-      } else {
-        fetchTransactions();
       }
     }
   }, [session, status, router]);
 
-  const fetchTransactions = async () => {
-    // Mock data - Replace with actual API call
-    setTransactions([
-      {
-        _id: "679df76c2dec32fcd4894d34",
-        stripeSessionId:
-          "cs_test_a1J5uLewnHBQ1GcZ9X2QlWPZVWmyaL8sC0wWvQB3dkAL8ItJW7ozMgSOfG",
-        customerEmail: "ahmadbaig7072@gmail.com",
-        eventId: "67879e992d33385d4c691a68",
-        tickets: [
-          {
-            type: "vip",
-            price: 1800,
-            qty: 1,
-            _id: "679df76c2dec32fcd4894d35",
-          },
-        ],
-        totalAmount: 1800,
-        status: "paid",
-        createdAt: "2025-02-01T10:29:00.361+00:00",
-        updatedAt: "2025-02-01T10:29:00.361+00:00",
-      },
-      {
-        _id: "679df76c2dec32fcd4894d34",
-        stripeSessionId:
-          "cs_test_a1J5uLewnHBQ1GcZ9X2QlWPZVWmyaL8sC0wWvQB3dkAL8ItJW7ozMgSOfG",
-        customerEmail: "ahmadbaig7072@gmail.com",
-        eventId: "67879e992d33385d4c691a68",
-        tickets: [
-          {
-            type: "standard",
-            price: 1800,
-            qty: 1,
-            _id: "679df76c2dec32fcd4894d35",
-          },
-          {
-            type: "vip",
-            price: 1000,
-            qty: 2,
-            _id: "679df76c2dec32fcd4894d35",
-          },
-        ],
-        totalAmount: 2800,
-        status: "pending",
-        createdAt: "2025-02-01T10:29:00.361+00:00",
-        updatedAt: "2025-02-01T10:29:00.361+00:00",
-      },
-    ]);
+  const getTransactions = async () => {
+    try {
+      setIsTransactionsLoading(true);
+      const fetchedTransactions = await fetchTransactions(session?.user?.email);
+      setTransactions(fetchedTransactions);
+      setFilteredTransactions(fetchedTransactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setIsTransactionsLoading(false);
+    }
   };
+
+  const getEventName = async (eventId) => {
+    try {
+      const event = await fetchEvent(eventId);
+      return event.name || "Unknown event";
+    } catch (error) {
+      console.error(`Error fetching event name for ID ${eventId}:`, error);
+      return "Error loading event";
+    }
+  };
+
+  useEffect(() => {
+    if (session) {
+      getTransactions();
+    }
+  }, [session]);
+
+  useEffect(() => {
+    const fetchEventNames = async () => {
+      const names = {};
+      for (const transaction of transactions) {
+        if (!names[transaction.eventId]) {
+          const eventName = await getEventName(transaction.eventId);
+          names[transaction.eventId] = eventName;
+        }
+      }
+      setEventNames(names);
+    };
+
+    if (transactions.length > 0) {
+      fetchEventNames();
+    }
+  }, [transactions]);
+
+  // Search functionality
+  useEffect(() => {
+    const filterTransactions = () => {
+      if (!searchQuery.trim()) {
+        setFilteredTransactions(transactions);
+        return;
+      }
+
+      const query = searchQuery.toLowerCase();
+      const filtered = transactions.filter((transaction) => {
+        const eventName = eventNames[transaction.eventId]?.toLowerCase() || "";
+        const transactionId = transaction._id.toLowerCase();
+        const status = transaction.status.toLowerCase();
+        const amount = transaction.totalAmount.toString();
+        const date = format(
+          new Date(transaction.createdAt),
+          "MMM dd, yyyy"
+        ).toLowerCase();
+        const tickets = transaction.tickets
+          .map((ticket) => `${ticket.qty}x ${ticket.type}`)
+          .join(" ")
+          .toLowerCase();
+
+        return (
+          eventName.includes(query) ||
+          transactionId.includes(query) ||
+          status.includes(query) ||
+          amount.includes(query) ||
+          date.includes(query) ||
+          tickets.includes(query)
+        );
+      });
+
+      setFilteredTransactions(filtered);
+    };
+
+    filterTransactions();
+  }, [searchQuery, transactions, eventNames]);
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -118,7 +158,7 @@ const TransactionsPage = () => {
     }
   };
 
-  if (loading) {
+  if (isPageLoading) {
     return (
       <div className="w-full h-screen bg-muted flex justify-center items-center">
         <LoaderCircle size={30} className="animate-spin" />
@@ -133,17 +173,6 @@ const TransactionsPage = () => {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              Rs.{transactions.reduce((acc, curr) => acc + curr.totalAmount, 0).toLocaleString()}
-            </div>
-          </CardContent>
-        </Card> */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -152,7 +181,13 @@ const TransactionsPage = () => {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{transactions.length}</div>
+            <div className="text-2xl font-bold">
+              {isTransactionsLoading ? (
+                <LoaderCircle size={20} className="animate-spin" />
+              ) : (
+                transactions.length
+              )}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -162,11 +197,15 @@ const TransactionsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {transactions.reduce(
-                (acc, curr) =>
-                  acc +
-                  curr.tickets.reduce((sum, ticket) => sum + ticket.qty, 0),
-                0
+              {isTransactionsLoading ? (
+                <LoaderCircle size={20} className="animate-spin" />
+              ) : (
+                transactions.reduce(
+                  (acc, curr) =>
+                    acc +
+                    curr.tickets.reduce((sum, ticket) => sum + ticket.qty, 0),
+                  0
+                )
               )}
             </div>
           </CardContent>
@@ -180,15 +219,20 @@ const TransactionsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              Rs.
-              {transactions.length > 0
-                ? Math.round(
-                    transactions.reduce(
-                      (acc, curr) => acc + curr.totalAmount,
-                      0
-                    ) / transactions.length
-                  )
-                : 0}
+              {isTransactionsLoading ? (
+                <LoaderCircle size={20} className="animate-spin" />
+              ) : (
+                `Rs.${
+                  transactions.length > 0
+                    ? Math.round(
+                        transactions.reduce(
+                          (acc, curr) => acc + curr.totalAmount,
+                          0
+                        ) / transactions.length
+                      )
+                    : 0
+                }`
+              )}
             </div>
           </CardContent>
         </Card>
@@ -196,7 +240,7 @@ const TransactionsPage = () => {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between w-full ">
+          <div className="flex items-center justify-between w-full">
             <div>
               <CardTitle className="text-2xl">Transactions</CardTitle>
               <CardDescription>
@@ -204,7 +248,12 @@ const TransactionsPage = () => {
               </CardDescription>
             </div>
             <div className="flex items-center">
-              <Input className="w-64" placeholder="Search transactions..." />
+              <Input
+                className="w-64"
+                placeholder="Search transactions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
         </CardHeader>
@@ -213,17 +262,28 @@ const TransactionsPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-30">Transaction ID</TableHead>
-                  {/* <TableHead className="min-w-60">Customer</TableHead> */}
+                  <TableHead className="min-w-36">Transaction ID</TableHead>
+                  <TableHead className="min-w-60">Event Name</TableHead>
                   <TableHead className="min-w-80">Tickets</TableHead>
                   <TableHead className="min-w-36">Amount</TableHead>
                   <TableHead className="min-w-36">Status</TableHead>
-                  <TableHead className="min-w-60">Date & Time</TableHead>
+                  <TableHead className="min-w-44">Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.length > 0 ? (
-                  transactions.map((transaction) => (
+                {isTransactionsLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8">
+                      <div className="flex flex-col items-center gap-2">
+                        <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                        <p className="text-muted-foreground">
+                          Loading transactions...
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : filteredTransactions.length > 0 ? (
+                  filteredTransactions.map((transaction) => (
                     <TableRow key={transaction._id}>
                       <TableCell className="font-medium">
                         <div className="flex flex-col">
@@ -235,26 +295,47 @@ const TransactionsPage = () => {
                           </span>
                         </div>
                       </TableCell>
-                      {/* <TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span>{transaction.customerEmail}</span>
+                          <span>
+                            {eventNames[transaction.eventId] || (
+                              <div className="flex items-center gap-2">
+                                <LoaderCircle
+                                  size={12}
+                                  className="animate-spin"
+                                />
+                                <span>Loading...</span>
+                              </div>
+                            )}
+                          </span>
                         </div>
-                      </TableCell> */}
+                      </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {transaction.tickets.map((ticket, idx) => (
+                          {Object.entries(
+                            transaction.tickets.reduce((acc, ticket) => {
+                              // Group tickets by type and sum the quantity
+                              acc[ticket.type] =
+                                (acc[ticket.type] || 0) + ticket.qty;
+                              return acc;
+                            }, {})
+                          ).map(([type, qty], idx) => (
                             <Badge key={idx} variant="secondary">
-                              {ticket.qty}x {ticket.type.toUpperCase()}
+                              {qty}x {type.toUpperCase()}
                             </Badge>
                           ))}
                         </div>
                       </TableCell>
+
                       <TableCell className="font-medium">
                         Rs.{transaction.totalAmount.toLocaleString()}
                       </TableCell>
                       <TableCell>
-                        <Badge className={getStatusColor(transaction.status)}>
+                        <Badge
+                          className={`${getStatusColor(
+                            transaction.status
+                          )} hover:${getStatusColor(transaction.status)}`}
+                        >
                           {transaction.status}
                         </Badge>
                       </TableCell>
@@ -277,7 +358,9 @@ const TransactionsPage = () => {
                       <div className="flex flex-col items-center gap-2">
                         <Receipt className="h-8 w-8 text-muted-foreground" />
                         <p className="text-muted-foreground">
-                          No transactions found.
+                          {searchQuery
+                            ? "No transactions found matching your search."
+                            : "No transactions found."}
                         </p>
                       </div>
                     </TableCell>
