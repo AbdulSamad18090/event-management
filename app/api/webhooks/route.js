@@ -51,7 +51,6 @@ export async function POST(req) {
       });
 
       await transaction.save();
-      console.log("Transaction saved to MongoDB:", transaction);
     }
 
     return new Response("Webhook received", { status: 200 });

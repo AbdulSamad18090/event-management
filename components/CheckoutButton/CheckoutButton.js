@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { useSession } from "next-auth/react"; // Import session hook
+import { toast } from "@/hooks/use-toast";
 
 export default function CheckoutButton({ tickets }) {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,11 @@ export default function CheckoutButton({ tickets }) {
 
   const handleCheckout = async () => {
     if (!session?.user?.email) {
-      alert("Please sign in to proceed with the payment.");
+      // alert("Please sign in to proceed with the payment.");
+      toast({
+        title: "Please sign in",
+        description: "You need to sign in to proceed with the payment.",
+      });
       return;
     }
 
@@ -32,8 +37,11 @@ export default function CheckoutButton({ tickets }) {
         throw new Error(data.error || "Payment failed");
       }
     } catch (error) {
-      console.error("Checkout error:", error);
-      alert(error.message);
+      // alert(error.message);
+      toast({
+        title: "Low Amount",
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }
