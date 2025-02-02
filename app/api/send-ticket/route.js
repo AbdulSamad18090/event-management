@@ -13,21 +13,21 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASSWORD,
   },
   tls: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
 });
 
 export async function POST(req) {
   try {
     let transaction;
     const rawBody = await req.text();
-    
+
     try {
       // First try to parse it once
       transaction = JSON.parse(rawBody);
-      
+
       // If it's still a string, parse it again
-      if (typeof transaction === 'string') {
+      if (typeof transaction === "string") {
         transaction = JSON.parse(transaction);
       }
     } catch (parseError) {
@@ -44,15 +44,22 @@ export async function POST(req) {
     console.log("Transaction keys:", Object.keys(transaction));
     console.log("Customer email:", transaction.customerEmail);
 
-    if (!transaction?.customerEmail || transaction.customerEmail.trim() === '') {
-      console.error("Invalid or missing customer email. Email value:", transaction?.customerEmail);
+    if (
+      !transaction?.customerEmail ||
+      transaction.customerEmail.trim() === ""
+    ) {
+      console.error(
+        "Invalid or missing customer email. Email value:",
+        transaction?.customerEmail
+      );
       return NextResponse.json(
         { message: "Valid customer email is required." },
         { status: 400 }
       );
     }
 
-    const emailHtml = render(<EventTicket transaction={transaction} />);
+    // Await the render function to ensure it resolves to a string
+    const emailHtml = await render(<EventTicket transaction={transaction} />);
     console.log("Generated email HTML length:", emailHtml.length);
 
     // Verify SMTP connection
@@ -62,14 +69,14 @@ export async function POST(req) {
     const mailOptions = {
       from: {
         name: "Event Ticket System",
-        address: process.env.SMTP_USER
+        address: process.env.SMTP_USER,
       },
       to: transaction.customerEmail,
       subject: "Your Event Ticket 🎟️",
       html: emailHtml,
       headers: {
-        'Priority': 'high'
-      }
+        Priority: "high",
+      },
     };
 
     console.log("Attempting to send email to:", transaction.customerEmail);
@@ -77,9 +84,9 @@ export async function POST(req) {
     console.log("Email sent successfully. Message ID:", info.messageId);
 
     return NextResponse.json(
-      { 
+      {
         message: "Ticket sent successfully",
-        messageId: info.messageId 
+        messageId: info.messageId,
       },
       { status: 201 }
     );
@@ -87,14 +94,14 @@ export async function POST(req) {
     console.error("Detailed error:", {
       message: error.message,
       stack: error.stack,
-      name: error.name
+      name: error.name,
     });
-    
+
     return NextResponse.json(
       {
         message: "An error occurred while sending ticket.",
         error: error.message,
-        details: error.toString()
+        details: error.toString(),
       },
       { status: 500 }
     );
