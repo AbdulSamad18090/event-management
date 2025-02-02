@@ -7,13 +7,13 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // true for 465, false for other ports
+  secure: false,
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD, // This should be an App Password if using Gmail
+    pass: process.env.SMTP_PASSWORD,
   },
   tls: {
-    rejectUnauthorized: false // Sometimes needed for testing
+    rejectUnauthorized: false
   }
 });
 
@@ -22,10 +22,15 @@ export async function POST(req) {
     const transaction = await req.json();
     console.log("Received transaction:", transaction);
 
-    if (!transaction?.customerEmail) {
-      console.error("Missing customer email");
+    // Debug log to check exact value
+    console.log("Customer email value:", transaction.customerEmail);
+    console.log("Full transaction keys:", Object.keys(transaction));
+
+    // Modified email check
+    if (!transaction || !transaction.customerEmail || transaction.customerEmail.trim() === '') {
+      console.error("Invalid or missing customer email. Email value:", transaction.customerEmail);
       return NextResponse.json(
-        { message: "Customer email is required." },
+        { message: "Valid customer email is required." },
         { status: 400 }
       );
     }
@@ -34,19 +39,13 @@ export async function POST(req) {
     const emailHtml = render(<EventTicket transaction={transaction} />);
     console.log("Generated email HTML length:", emailHtml.length);
 
-    // Test SMTP connection before sending
-    try {
-      await transporter.verify();
-      console.log("SMTP connection verified");
-    } catch (smtpError) {
-      console.error("SMTP verification failed:", smtpError);
-      throw smtpError;
-    }
+    // Verify SMTP connection
+    await transporter.verify();
+    console.log("SMTP connection verified successfully");
 
-    // Send email with more detailed options
     const mailOptions = {
       from: {
-        name: "Your Event Name", // Add your event name here
+        name: "Event Ticket System",
         address: process.env.SMTP_USER
       },
       to: transaction.customerEmail,
@@ -59,7 +58,7 @@ export async function POST(req) {
 
     console.log("Attempting to send email to:", transaction.customerEmail);
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully:", info.messageId);
+    console.log("Email sent successfully. Message ID:", info.messageId);
 
     return NextResponse.json(
       { 
@@ -69,12 +68,12 @@ export async function POST(req) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Detailed error:", error);
+    console.error("Detailed error in email sending:", error);
     return NextResponse.json(
       {
         message: "An error occurred while sending ticket.",
         error: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        details: error.toString()
       },
       { status: 500 }
     );
