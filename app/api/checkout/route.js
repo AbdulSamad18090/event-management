@@ -37,7 +37,7 @@ export async function POST(req) {
       payment_method_types: ["card"],
       mode: "payment",
       customer_email: customerEmail, // Attach email
-      customer_id: customerId,
+      // customer_id: customerId,
       line_items,
       metadata: {
         tickets: JSON.stringify(tickets),
