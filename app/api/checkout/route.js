@@ -43,6 +43,7 @@ export async function POST(req) {
         tickets: JSON.stringify(tickets),
         eventId: tickets[0]?.eventId || "unknown",
         customerEmail, // Store customer email in metadata
+        customerId,
       },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
