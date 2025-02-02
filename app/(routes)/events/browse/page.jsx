@@ -24,6 +24,10 @@ import {
 } from "@/components/ui/pagination";
 import cities from "../../../../lib/pak-cities/pak-cities.json";
 import AOS from "aos";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import EventsList from "../../organizers/[id]/_components/events-list";
+import RatingsAndReviews from "../../organizers/[id]/_components/ratings-and-reviews";
+import { filterEvents } from "../../organizers/utils";
 
 export default function BrowseEvents() {
   const dispatch = useDispatch();
@@ -45,16 +49,18 @@ export default function BrowseEvents() {
 
   const currentDate = new Date(); // Get the current date and time
 
-  const upcomingEvents = allEvents.filter((event) => {
-    const eventStartDate = new Date(event.date.from);
-    const eventEndDate = new Date(event.date.to);
+  // const upcomingEvents = allEvents.filter((event) => {
+  //   const eventStartDate = new Date(event.date.from);
+  //   const eventEndDate = new Date(event.date.to);
 
-    // Include events that are either upcoming or ongoing
-    return (
-      eventStartDate > currentDate || // Upcoming
-      (eventStartDate <= currentDate && eventEndDate >= currentDate)
-    ); // Ongoing
-  });
+  //   // Include events that are either upcoming or ongoing
+  //   return (
+  //     eventStartDate > currentDate || // Upcoming
+  //     (eventStartDate <= currentDate && eventEndDate >= currentDate)
+  //   ); // Ongoing
+  // });
+
+  const { pastEvents, upcomingEvents, ongoingEvents } = filterEvents(allEvents);
 
   useEffect(() => {
     dispatch(
@@ -166,28 +172,119 @@ export default function BrowseEvents() {
           </Button>
         </div>
       </div>
+      <div className="w-full">
+        <Tabs
+          defaultValue="upcoming"
+          className="w-full flex flex-col items-center justify-center"
+        >
+          <TabsList className="mb-4">
+            <TabsTrigger
+              className="md:w-[200px]"
+              value="ongoing"
+              data-aos="fade-down"
+              data-aos-delay={200}
+            >
+              Ongoing Events
+            </TabsTrigger>
+            <TabsTrigger
+              className="md:w-[200px]"
+              value="upcoming"
+              data-aos="fade-down"
+              data-aos-delay={300}
+            >
+              Upcoming Events
+            </TabsTrigger>
+            <TabsTrigger
+              className="md:w-[200px]"
+              value="past"
+              data-aos="fade-down"
+              data-aos-delay={400}
+            >
+              Past Events
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="ongoing" className="w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {ongoingEvents.length > 0 ? (
+                ongoingEvents.map((event, i) => (
+                  <EventCard
+                    key={event._id}
+                    eventId={event._id}
+                    title={event.name}
+                    description={event.description}
+                    location={event.location}
+                    date={event.date}
+                    time={event.time}
+                    organizer={event.organizer}
+                    pricing={event.pricing}
+                    data-aos="fade-up"
+                    data-aos-delay={i * 100}
+                  />
+                ))
+              ) : (
+                <p className="text-center col-span-3">
+                  No ongoing events found.
+                </p>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="upcoming" className="w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingEvents.length > 0 ? (
+                upcomingEvents.map((event, i) => (
+                  <EventCard
+                    key={event._id}
+                    eventId={event._id}
+                    title={event.name}
+                    description={event.description}
+                    location={event.location}
+                    date={event.date}
+                    time={event.time}
+                    organizer={event.organizer}
+                    pricing={event.pricing}
+                    data-aos="fade-up"
+                    data-aos-delay={i * 100}
+                  />
+                ))
+              ) : (
+                <p className="text-center col-span-3">
+                  No upcoming events found.
+                </p>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="past" className="w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pastEvents.length > 0 ? (
+                pastEvents.map((event, i) => (
+                  <EventCard
+                    key={event._id}
+                    eventId={event._id}
+                    title={event.name}
+                    description={event.description}
+                    location={event.location}
+                    date={event.date}
+                    time={event.time}
+                    organizer={event.organizer}
+                    pricing={event.pricing}
+                    data-aos="fade-up"
+                    data-aos-delay={i * 100}
+                  />
+                ))
+              ) : (
+                <p className="text-center col-span-3">No past events found.</p>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
 
       {/* Events Grid */}
-      {loading ? (
+      {loading && (
         <div className="w-full h-64 flex items-center justify-center">
           <LoaderCircle size={30} className="animate-spin" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {upcomingEvents?.map((event, i) => (
-            <div key={event?._id} data-aos="fade-up" data-aos-delay={i * 300}>
-              <EventCard
-                eventId={event?._id}
-                title={event?.name}
-                description={event?.description}
-                location={event?.location}
-                date={event?.date}
-                time={event?.time}
-                organizer={event?.organizer}
-                pricing={event?.pricing}
-              />
-            </div>
-          ))}
         </div>
       )}
 
