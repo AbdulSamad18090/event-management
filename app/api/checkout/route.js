@@ -4,10 +4,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   try {
-    const { tickets, customerEmail } = await req.json(); // Ensure customerEmail is received
+    const { tickets, customerEmail, customerId } = await req.json(); // Ensure customerEmail is received
 
     if (!customerEmail) {
-      return Response.json({ error: "Customer email is required" }, { status: 400 });
+      return Response.json(
+        { error: "Customer email is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!customerId) {
+      return Response.json(
+        { error: "Customer id is required" },
+        { status: 400 }
+      );
     }
 
     const line_items = tickets.flatMap((event) =>
@@ -27,6 +37,7 @@ export async function POST(req) {
       payment_method_types: ["card"],
       mode: "payment",
       customer_email: customerEmail, // Attach email
+      cistomer_id: customerId,
       line_items,
       metadata: {
         tickets: JSON.stringify(tickets),

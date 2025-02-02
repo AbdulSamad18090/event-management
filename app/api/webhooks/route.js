@@ -9,7 +9,11 @@ export async function POST(req) {
     const sig = req.headers.get("stripe-signature");
     const rawBody = await req.text();
 
-    const event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    const event = stripe.webhooks.constructEvent(
+      rawBody,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
 
     if (event.type === "checkout.session.completed") {
       // Send Immediate Response to Stripe
@@ -42,6 +46,7 @@ export async function POST(req) {
 
       const transactionData = {
         customerEmail: metadata.customerEmail || session.customer_email,
+        customerId: metadata.customerId || session.customer_id,
         tickets: formattedTickets,
         eventId: metadata.eventId,
         totalAmount: session.amount_total / 100,

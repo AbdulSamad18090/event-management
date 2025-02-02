@@ -27,6 +27,7 @@ export default function CheckoutButton({ tickets }) {
         body: JSON.stringify({
           tickets,
           customerEmail: session.user.email, // Pass user email
+          customerId: session.user.id,
         }),
       });
 
