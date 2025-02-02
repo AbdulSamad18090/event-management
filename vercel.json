@@ -1,9 +1,9 @@
 {
-    "cron": {
-      "job1": {
-        "schedule": "*/1 * * * *",
-        "path": "/api/process-jobs"
+    "crons": [
+      {
+        "path": "/api/process-jobs",
+        "schedule": "*/1 * * * *"
       }
-    }
+    ]
   }
   

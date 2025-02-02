@@ -1,8 +1,15 @@
+import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db-connection/DbConnection";
 import JobQueue from "@/lib/models/JobQueue";
 import Transaction from "@/lib/models/Transaction";
 
-export async function GET() {
+export async function GET(req) {
+  // Secure the endpoint using CRON_SECRET
+  const authHeader = req.headers.get("Authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     await dbConnect();
 
@@ -14,7 +21,7 @@ export async function GET() {
     );
 
     if (!job) {
-      return new Response("No pending jobs", { status: 200 });
+      return NextResponse.json({ message: "No pending jobs" }, { status: 200 });
     }
 
     try {
@@ -24,7 +31,7 @@ export async function GET() {
       // Mark job as completed
       await JobQueue.findByIdAndUpdate(job._id, { status: "completed" });
 
-      return new Response("Job processed successfully", { status: 200 });
+      return NextResponse.json({ message: "Job processed successfully" }, { status: 200 });
     } catch (error) {
       console.error("Transaction processing failed:", error);
 
@@ -38,10 +45,10 @@ export async function GET() {
         await JobQueue.findByIdAndUpdate(job._id, { status: "failed" });
       }
 
-      return new Response("Job failed", { status: 500 });
+      return NextResponse.json({ message: "Job failed" }, { status: 500 });
     }
   } catch (error) {
     console.error("Job processing error:", error);
-    return new Response("Processing failed", { status: 500 });
+    return NextResponse.json({ message: "Processing failed" }, { status: 500 });
   }
 }
