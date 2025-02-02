@@ -10,68 +10,141 @@ const EventTicket = ({ transaction }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg overflow-hidden shadow-lg">
-      <div className="bg-orange-600 p-6 text-white">
-        <h1 className="text-3xl font-bold text-center">Event Ticket</h1>
-        <p className="text-center mt-2 text-orange-100">
+    <div
+      style={{
+        maxWidth: "600px",
+        margin: "0 auto",
+        backgroundColor: "#ffffff",
+        borderRadius: "8px",
+        overflow: "hidden",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {/* Header Section */}
+      <div
+        style={{
+          backgroundColor: "#ea580c",
+          padding: "24px",
+          textAlign: "center",
+          color: "#ffffff",
+        }}
+      >
+        <h1 style={{ fontSize: "28px", fontWeight: "bold", margin: "0" }}>
+          Event Ticket
+        </h1>
+        <p style={{ fontSize: "14px", marginTop: "8px", color: "#fed7aa" }}>
           Your gateway to an amazing experience
         </p>
       </div>
 
-      <div className="p-6">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Event Details</h2>
-          {/* <p className="text-gray-600 mt-2">Event ID: {transaction.eventId}</p> */}
-          <p className="text-gray-600">
+      {/* Event Details Section */}
+      <div style={{ padding: "24px" }}>
+        <div style={{ marginBottom: "24px" }}>
+          <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#1a1a1a" }}>
+            Event Details
+          </h2>
+          <p style={{ fontSize: "14px", color: "#4a5568", marginTop: "8px" }}>
             Date: {formatDate(transaction.createdAt)}
           </p>
         </div>
 
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">
+        {/* Ticket Information Section */}
+        <div style={{ marginBottom: "24px" }}>
+          <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#1a1a1a" }}>
             Ticket Information
           </h2>
           {transaction.tickets.map((ticket, index) => (
-            <div key={index} className="mt-2 p-3 bg-gray-50 rounded-md">
-              <p className="text-gray-800">
-                <span className="font-medium capitalize">{ticket.type}</span> -{" "}
-                {ticket.qty} {ticket.qty > 1 ? "tickets" : "ticket"}
+            <div
+              key={index}
+              style={{
+                marginTop: "8px",
+                padding: "12px",
+                backgroundColor: "#f7fafc",
+                borderRadius: "6px",
+              }}
+            >
+              <p style={{ fontSize: "16px", color: "#1a1a1a", margin: "0" }}>
+                <span
+                  style={{ fontWeight: "500", textTransform: "capitalize" }}
+                >
+                  {ticket.type}
+                </span>{" "}
+                - {ticket.qty} {ticket.qty > 1 ? "tickets" : "ticket"}
               </p>
-              <p className="text-gray-600 text-sm">
+              <p style={{ fontSize: "14px", color: "#4a5568", margin: "0" }}>
                 Price per ticket: Rs.{ticket.price}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="border-t pt-4">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-700 font-medium">Total Amount:</span>
-            <span className="text-2xl font-bold text-orange-600">
+        {/* Total Amount Section */}
+        <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "16px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{ fontSize: "16px", color: "#4a5568", fontWeight: "500" }}
+            >
+              Total Amount:
+            </span>
+            <span
+              style={{ fontSize: "24px", fontWeight: "bold", color: "#ea580c" }}
+            >
               Rs.{transaction.totalAmount}
             </span>
           </div>
         </div>
 
-        <div className="mt-6 bg-gray-50 p-4 rounded-md">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+        {/* Customer Information Section */}
+        <div
+          style={{
+            marginTop: "24px",
+            backgroundColor: "#f7fafc",
+            padding: "16px",
+            borderRadius: "6px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "20px",
+              fontWeight: "600",
+              color: "#1a1a1a",
+              marginBottom: "8px",
+            }}
+          >
             Customer Information
           </h2>
-          <p className="text-gray-600">Email: {transaction.customerEmail}</p>
-          <p className="text-gray-600">Order ID: {transaction._id}</p>
-          <p className="text-gray-600">
+          <p style={{ fontSize: "14px", color: "#4a5568", margin: "0" }}>
+            Email: {transaction.customerEmail}
+          </p>
+          <p style={{ fontSize: "14px", color: "#4a5568", margin: "0" }}>
+            Order ID: {transaction._id}
+          </p>
+          <p style={{ fontSize: "14px", color: "#4a5568", margin: "0" }}>
             Status:{" "}
-            <span className="text-green-600 font-medium capitalize">
+            <span
+              style={{
+                color: "#22c55e",
+                fontWeight: "500",
+                textTransform: "capitalize",
+              }}
+            >
               {transaction.status}
             </span>
           </p>
         </div>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
+        {/* Footer Section */}
+        <div style={{ marginTop: "24px", textAlign: "center" }}>
+          <p style={{ fontSize: "12px", color: "#718096", margin: "0" }}>
             Please present this ticket at the event entrance
           </p>
-          <p className="text-sm text-gray-500">
+          <p style={{ fontSize: "12px", color: "#718096", margin: "0" }}>
             For any queries, please contact support
           </p>
         </div>
