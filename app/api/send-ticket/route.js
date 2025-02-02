@@ -19,18 +19,30 @@ const transporter = nodemailer.createTransport({
 
 export async function POST(req) {
   try {
-    // Get the raw body text
+    let transaction;
     const rawBody = await req.text();
-    console.log("Raw request body:", rawBody);
+    
+    try {
+      // First try to parse it once
+      transaction = JSON.parse(rawBody);
+      
+      // If it's still a string, parse it again
+      if (typeof transaction === 'string') {
+        transaction = JSON.parse(transaction);
+      }
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError);
+      return NextResponse.json(
+        { message: "Invalid JSON data received" },
+        { status: 400 }
+      );
+    }
 
-    // Parse it manually
-    const transaction = JSON.parse(rawBody);
-    console.log("Parsed transaction:", transaction);
-
-    // Verify the parsed data structure
-    console.log("Customer email value:", transaction?.customerEmail);
+    // Debug logs
+    console.log("Final transaction object:", transaction);
     console.log("Transaction type:", typeof transaction);
     console.log("Transaction keys:", Object.keys(transaction));
+    console.log("Customer email:", transaction.customerEmail);
 
     if (!transaction?.customerEmail || transaction.customerEmail.trim() === '') {
       console.error("Invalid or missing customer email. Email value:", transaction?.customerEmail);
@@ -45,7 +57,7 @@ export async function POST(req) {
 
     // Verify SMTP connection
     await transporter.verify();
-    console.log("SMTP connection verified successfully");
+    console.log("SMTP connection is verified");
 
     const mailOptions = {
       from: {
@@ -60,7 +72,7 @@ export async function POST(req) {
       }
     };
 
-    console.log("Sending email to:", transaction.customerEmail);
+    console.log("Attempting to send email to:", transaction.customerEmail);
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent successfully. Message ID:", info.messageId);
 
