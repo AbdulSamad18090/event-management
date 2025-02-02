@@ -1,0 +1,9 @@
+{
+    "cron": {
+      "job1": {
+        "schedule": "*/1 * * * *",
+        "path": "/api/process-jobs"
+      }
+    }
+  }
+  
