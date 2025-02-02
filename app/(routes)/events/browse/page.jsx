@@ -43,6 +43,19 @@ export default function BrowseEvents() {
     dateRange: "any",
   });
 
+  const currentDate = new Date(); // Get the current date and time
+
+  const upcomingEvents = allEvents.filter((event) => {
+    const eventStartDate = new Date(event.date.from);
+    const eventEndDate = new Date(event.date.to);
+
+    // Include events that are either upcoming or ongoing
+    return (
+      eventStartDate > currentDate || // Upcoming
+      (eventStartDate <= currentDate && eventEndDate >= currentDate)
+    ); // Ongoing
+  });
+
   useEffect(() => {
     dispatch(
       fetchAllEvents({
@@ -161,7 +174,7 @@ export default function BrowseEvents() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {allEvents?.map((event, i) => (
+          {upcomingEvents?.map((event, i) => (
             <div key={event?._id} data-aos="fade-up" data-aos-delay={i * 300}>
               <EventCard
                 eventId={event?._id}

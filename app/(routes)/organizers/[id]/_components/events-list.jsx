@@ -26,6 +26,13 @@ export default function EventsList({ type, events, loading }) {
     );
   }
 
+  // Dynamic Heading and Badge Text
+  const typeText = {
+    upcoming: "Upcoming",
+    ongoing: "Ongoing",
+    past: "Past",
+  };
+
   return (
     <div className="space-y-4">
       <h2
@@ -34,11 +41,11 @@ export default function EventsList({ type, events, loading }) {
         data-aos-delay={200}
         data-aos-duration={200}
       >
-        {type === "upcoming" ? "Upcoming" : "Past"} Events
+        {typeText[type]} Events
       </h2>
-      {events?.length === 0 && (
-        <h1>No {type} events</h1>
-      )}
+
+      {events?.length === 0 && <h1>No {typeText[type]} events</h1>}
+
       {events.map((event, i) => (
         <Card
           key={event._id}
@@ -48,8 +55,16 @@ export default function EventsList({ type, events, loading }) {
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               <span>{event?.name}</span>
-              <Badge variant={type === "upcoming" ? "default" : "secondary"}>
-                {type === "upcoming" ? "Upcoming" : "Past"}
+              <Badge
+                variant={
+                  type === "upcoming"
+                    ? "default"
+                    : type === "ongoing"
+                    ? "destructive"
+                    : "secondary"
+                }
+              >
+                {typeText[type]}
               </Badge>
             </CardTitle>
           </CardHeader>

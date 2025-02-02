@@ -83,10 +83,21 @@ export function EventCard({
 
   const handleAddToCart = () => {
     dispatch(addToCart({ eventId, title, pricing, quantities }));
-    toast({
-      title: "Ticket Added to Cart",
-      description: "You have added the ticket to your cart.",
-    });
+    if (
+      quantities.general === 0 &&
+      quantities.vip === 0 &&
+      quantities.standard === 0
+    ) {
+      toast({
+        title: "Oops!",
+        description: "I thing you forget to select quantity of tickets.",
+      });
+    } else {
+      toast({
+        title: "Ticket Added to Cart",
+        description: "You have added the ticket to your cart.",
+      });
+    }
   };
 
   useEffect(() => {
@@ -334,13 +345,25 @@ export function EventCard({
                 ))}
               </CardContent>
             </Card>
-            <DialogFooter>
+            <DialogFooter className="gap-3">
               <DialogClose>
-                <Button variant="outline" className="mr-2">
+                <Button variant="outline" className="w-full">
                   Cancel
                 </Button>
               </DialogClose>
-              <Button onClick={handleAddToCart}>Add To Card</Button>
+              {quantities.general === 0 &&
+              quantities.vip === 0 &&
+              quantities.standard === 0 ? (
+                <Button onClick={handleAddToCart}>
+                  Add To Card
+                </Button>
+              ) : (
+                <DialogClose>
+                  <Button onClick={handleAddToCart} className="w-full">
+                    Add To Card
+                  </Button>
+                </DialogClose>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>

@@ -4,11 +4,18 @@ export const filterEvents = (events) => {
   const upcomingEvents = events.filter(
     (event) => new Date(event.date.from) > currentDate
   );
+
+  const ongoingEvents = events.filter(
+    (event) =>
+      new Date(event.date.from) <= currentDate &&
+      new Date(event.date.to) >= currentDate
+  );
+
   const pastEvents = events.filter(
     (event) => new Date(event.date.to) < currentDate
   );
 
-  return { upcomingEvents, pastEvents };
+  return { upcomingEvents, ongoingEvents, pastEvents };
 };
 
 export const getDate = (timestamp) => {
@@ -73,8 +80,6 @@ export const fetchNoOfAttendeesForOrganizer = async (id) => {
     return null; // Return null to indicate failure
   }
 };
-
-
 
 export function formatNumber(value) {
   if (value >= 1_000_000_000) {

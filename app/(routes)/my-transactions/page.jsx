@@ -240,16 +240,16 @@ const TransactionsPage = () => {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full flex-wrap gap-4">
             <div>
               <CardTitle className="text-2xl">Transactions</CardTitle>
               <CardDescription>
                 A list of all your transactions and their details.
               </CardDescription>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center md:w-fit w-full">
               <Input
-                className="w-64"
+                className="md:w-64 w-full"
                 placeholder="Search transactions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

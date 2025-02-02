@@ -47,7 +47,7 @@ export default function OrganizerDetailsPage() {
     dispatch(fetchEventsOfOrganizer(id));
   }, [dispatch, id]);
 
-  const { pastEvents, upcomingEvents } = filterEvents(events);
+  const { pastEvents, upcomingEvents, ongoingEvents } = filterEvents(events);
 
   return (
     <div className="container mx-auto px-4 py-8 overflow-x-hidden">
@@ -63,8 +63,15 @@ export default function OrganizerDetailsPage() {
           <AwardsAndCertifications />
         </aside>
         <main className="lg:w-2/3">
-          <Tabs defaultValue="upcoming" className="w-full">
+          <Tabs defaultValue="ongoing" className="w-full">
             <TabsList>
+              <TabsTrigger
+                value="ongoing"
+                data-aos="fade-down"
+                data-aos-delay={200}
+              >
+                Ongoing Events
+              </TabsTrigger>
               <TabsTrigger
                 value="upcoming"
                 data-aos="fade-down"
@@ -87,6 +94,13 @@ export default function OrganizerDetailsPage() {
                 Ratings & Reviews
               </TabsTrigger>
             </TabsList>
+            <TabsContent value="ongoing">
+              <EventsList
+                type="upcoming"
+                events={ongoingEvents}
+                loading={loading}
+              />
+            </TabsContent>
             <TabsContent value="upcoming">
               <EventsList
                 type="upcoming"
