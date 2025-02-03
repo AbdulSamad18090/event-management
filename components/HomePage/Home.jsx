@@ -10,8 +10,8 @@ export default function Home() {
   return (
     <div className="overflow-x-hidden">
       <HeroSection />
-      <FeaturedEvents />
       <UpcomingEvents />
+      <FeaturedEvents />
       <Testimonials />
       <CTA />
       <div className="bg-muted/50 py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
@@ -22,8 +22,11 @@ export default function Home() {
         >
           Meet the Developer
         </h1>
-        <p data-aos="fade-up"
-          data-aos-delay={300} className="text-xl text-center text-muted-foreground mb-12 max-w-2xl">
+        <p
+          data-aos="fade-up"
+          data-aos-delay={300}
+          className="text-xl text-center text-muted-foreground mb-12 max-w-2xl"
+        >
           Get to know the creative mind behind the code. Connect with me to
           discuss your next project or collaboration opportunity.
         </p>
