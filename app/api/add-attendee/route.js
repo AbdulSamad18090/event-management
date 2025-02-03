@@ -33,6 +33,7 @@ export async function PATCH(req) {
       { status: 200 }
     );
   } catch (error) {
+    console.log("Error =>", error.message)
     return NextResponse.json(
       {
         message: "An error occurred while adding attendee to the event.",
