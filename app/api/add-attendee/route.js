@@ -4,7 +4,24 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(req) {
   try {
-    const transaction = await req.json();
+    let transaction;
+    const rawBody = await req.text();
+
+    try {
+      // First try to parse it once
+      transaction = JSON.parse(rawBody);
+
+      // If it's still a string, parse it again
+      if (typeof transaction === "string") {
+        transaction = JSON.parse(transaction);
+      }
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError);
+      return NextResponse.json(
+        { message: "Invalid JSON data received" },
+        { status: 400 }
+      );
+    }
     // const transaction = await JSON.parse(body);
     const { eventId, customerId, customerEmail, tickets, totalAmount } =
       transaction;
@@ -33,7 +50,7 @@ export async function PATCH(req) {
       { status: 200 }
     );
   } catch (error) {
-    console.log("Error =>", error.message)
+    console.log("Error =>", error.message);
     return NextResponse.json(
       {
         message: "An error occurred while adding attendee to the event.",
