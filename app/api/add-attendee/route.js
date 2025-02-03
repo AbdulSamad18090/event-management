@@ -1,3 +1,4 @@
+import dbConnect from "@/lib/db-connection/DbConnection";
 import Event from "@/lib/models/Event";
 import { NextResponse } from "next/server";
 
@@ -8,6 +9,7 @@ export async function PATCH(req) {
     const { eventId, customerId, customerEmail, tickets, totalAmount } =
       transaction;
     console.log("Transaction =>", transaction);
+    await dbConnect();
     const existingEvent = await Event.findById(eventId);
     if (!existingEvent) {
       return NextResponse.json(
