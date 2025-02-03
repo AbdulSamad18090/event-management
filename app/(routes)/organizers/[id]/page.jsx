@@ -41,6 +41,7 @@ export default function OrganizerDetailsPage() {
   useEffect(() => {
     AOS.init({
       duration: 500,
+      once: true,
     });
   }, []);
 
@@ -64,7 +65,7 @@ export default function OrganizerDetailsPage() {
           {/* <SocialMedia />
           <AwardsAndCertifications /> */}
         </aside>
-        <main className="lg:w-2/3">
+        <main className="lg:w-2/3 md:mt-0 mb-6">
           <Tabs defaultValue="ongoing" className="w-full">
             <TabsList>
               <TabsTrigger
