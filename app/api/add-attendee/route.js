@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(req) {
   try {
-    const body = await req.json();
+    const transaction = await req.json();
     // const transaction = await JSON.parse(body);
     const { eventId, customerId, customerEmail, tickets, totalAmount } =
       transaction;
