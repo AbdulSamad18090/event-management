@@ -98,19 +98,19 @@ export default function OrganizerDetailsPage() {
             <TabsContent value="ongoing">
               <EventsList
                 type="upcoming"
-                events={ongoingEvents}
+                events={ongoingEvents || []}
                 loading={loading}
               />
             </TabsContent>
             <TabsContent value="upcoming">
               <EventsList
                 type="upcoming"
-                events={upcomingEvents}
+                events={upcomingEvents || []}
                 loading={loading}
               />
             </TabsContent>
             <TabsContent value="past">
-              <EventsList type="past" events={pastEvents} loading={loading} />
+              <EventsList type="past" events={pastEvents || []} loading={loading} />
             </TabsContent>
             <TabsContent value="reviews">
               <RatingsAndReviews />

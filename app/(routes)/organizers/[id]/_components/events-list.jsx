@@ -11,7 +11,7 @@ import { getDate } from "../../utils";
 import { useEffect } from "react";
 import AOS from "aos";
 
-export default function EventsList({ type, events, loading }) {
+export default function EventsList({ type, events = [], loading }) {
   useEffect(() => {
     AOS.init({
       duration: 500,
@@ -46,9 +46,9 @@ export default function EventsList({ type, events, loading }) {
 
       {events?.length === 0 && <h1>No {typeText[type]} events</h1>}
 
-      {events.map((event, i) => (
+      {events?.map((event, i) => (
         <Card
-          key={event._id}
+          key={i}
           data-aos="fade-left"
           data-aos-delay={i * 300} // Stagger animation
         >
@@ -60,8 +60,8 @@ export default function EventsList({ type, events, loading }) {
                   type === "upcoming"
                     ? "default"
                     : type === "ongoing"
-                    ? "destructive"
-                    : "secondary"
+                      ? "destructive"
+                      : "secondary"
                 }
               >
                 {typeText[type]}
@@ -84,7 +84,7 @@ export default function EventsList({ type, events, loading }) {
               </div>
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
-                {event?.attendees.length} attendees
+                {event?.attendees?.length} attendees
               </div>
             </div>
           </CardContent>
