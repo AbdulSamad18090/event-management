@@ -11,7 +11,7 @@ export default function ContactInfo({organizer}) {
   }, []);
 
   return (
-    <Card className="mb-6" data-aos="fade-up" data-aos-delay={200}>
+    <Card className="mb-6">
       <CardHeader>
         <CardTitle>Contact Information</CardTitle>
       </CardHeader>

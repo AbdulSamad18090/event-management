@@ -17,6 +17,7 @@ import {
   formatNumber,
 } from "../utils";
 import AOS from "aos";
+import { ReviewCard } from "./_components/ReviewCard";
 
 export default function OrganizerDetailsPage() {
   const dispatch = useDispatch();
@@ -30,7 +31,7 @@ export default function OrganizerDetailsPage() {
       const organizer = await fetchOrganizer(id);
       setOrganizer(organizer);
       const noOfAttendees = await fetchNoOfAttendeesForOrganizer(id);
-      console.log(noOfAttendees)
+      console.log(noOfAttendees);
       setTotalAttendees(formatNumber(noOfAttendees));
     } catch (error) {
       console.error("Error fetching organizer details:", error);
@@ -60,8 +61,8 @@ export default function OrganizerDetailsPage() {
             totalAttendees={totalAttendees}
           />
           <ContactInfo organizer={organizer} />
-          <SocialMedia />
-          <AwardsAndCertifications />
+          {/* <SocialMedia />
+          <AwardsAndCertifications /> */}
         </aside>
         <main className="lg:w-2/3">
           <Tabs defaultValue="ongoing" className="w-full">
@@ -110,7 +111,11 @@ export default function OrganizerDetailsPage() {
               />
             </TabsContent>
             <TabsContent value="past">
-              <EventsList type="past" events={pastEvents || []} loading={loading} />
+              <EventsList
+                type="past"
+                events={pastEvents || []}
+                loading={loading}
+              />
             </TabsContent>
             <TabsContent value="reviews">
               <RatingsAndReviews />
@@ -118,6 +123,7 @@ export default function OrganizerDetailsPage() {
           </Tabs>
         </main>
       </div>
+      <ReviewCard />
     </div>
   );
 }
