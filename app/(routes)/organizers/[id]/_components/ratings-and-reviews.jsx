@@ -43,31 +43,8 @@ export default function RatingsAndReviews() {
     });
   }, []);
 
-  const handleStarClick = (rating) => {
-    setNewReview((prev) => ({ ...prev, rating }));
-  };
-
-  const handleCommentChange = (event) => {
-    setNewReview((prev) => ({ ...prev, comment: event.target.value }));
-  };
-
-  const handleSubmitReview = (event) => {
-    event.preventDefault();
-    if (newReview.rating === 0 || newReview.comment.trim() === "") {
-      alert("Please provide both a rating and a comment.");
-      return;
-    }
-    const newReviewObject = {
-      id: reviews.length + 1,
-      author: "Anonymous", // In a real app, this would be the logged-in user's name
-      ...newReview,
-    };
-    setReviews((prev) => [...prev, newReviewObject]);
-    setNewReview({ rating: 0, comment: "" });
-  };
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <h2
         className="text-2xl font-bold"
         data-aos="fade-left"

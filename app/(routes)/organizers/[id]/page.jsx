@@ -18,6 +18,7 @@ import {
 } from "../utils";
 import AOS from "aos";
 import { ReviewCard } from "./_components/ReviewCard";
+import { useSession } from "next-auth/react";
 
 export default function OrganizerDetailsPage() {
   const dispatch = useDispatch();
@@ -25,13 +26,13 @@ export default function OrganizerDetailsPage() {
   const { events, loading } = useSelector((state) => state.event);
   const [organizer, setOrganizer] = useState(null);
   const [totalAttendees, setTotalAttendees] = useState(0);
+  const { data: session } = useSession();
 
   const getOrganizerDetails = async (id) => {
     try {
       const organizer = await fetchOrganizer(id);
       setOrganizer(organizer);
       const noOfAttendees = await fetchNoOfAttendeesForOrganizer(id);
-      console.log(noOfAttendees);
       setTotalAttendees(formatNumber(noOfAttendees));
     } catch (error) {
       console.error("Error fetching organizer details:", error);
@@ -124,7 +125,12 @@ export default function OrganizerDetailsPage() {
           </Tabs>
         </main>
       </div>
-      <ReviewCard />
+      <ReviewCard
+        organizerId={id}
+        attendeeId={session?.user?.id}
+        attendeeName={session?.user?.name}
+        role={session?.user?.role}
+      />
     </div>
   );
 }

@@ -8,14 +8,10 @@ import "aos/dist/aos.css";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { data: session } = useSession();
-
   // Initialize AOS
   useEffect(() => {
     AOS.init();
   }, []);
-
-  console.log("session: ", session);
 
   return (
     <>

@@ -11,8 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
-export function ReviewCard() {
+export function ReviewCard({ organizerId, attendeeId, attendeeName, role }) {
   const [newReview, setNewReview] = useState({
     rating: 0,
     comment: "",
@@ -29,8 +30,31 @@ export function ReviewCard() {
 
   const handleSubmitReview = (e) => {
     e.preventDefault();
-    // Handle submission logic here
-    console.log("Submitted review:", newReview);
+    if (!attendeeId || !attendeeName) {
+      toast({
+        title: "Before submission",
+        description:
+          "Please login to your account to procede review submission",
+      });
+    } else if (role !== "attendee") {
+      toast({
+        title: "Unauthorized action",
+        description: "Only attendees can submit reviews",
+      });
+    } else if (!organizerId) {
+      toast({
+        title: "Oops!",
+        description: "An unexpected error occurred while submitting",
+      });
+    } else {
+      console.log("Submitted review:", {
+        organizerId,
+        attendeeId,
+        attendeeName,
+        rating: newReview.rating,
+        review: newReview.comment,
+      });
+    }
   };
 
   const getRatingText = (rating) => {
