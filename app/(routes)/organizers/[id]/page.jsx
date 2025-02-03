@@ -30,6 +30,7 @@ export default function OrganizerDetailsPage() {
       const organizer = await fetchOrganizer(id);
       setOrganizer(organizer);
       const noOfAttendees = await fetchNoOfAttendeesForOrganizer(id);
+      console.log(noOfAttendees)
       setTotalAttendees(formatNumber(noOfAttendees));
     } catch (error) {
       console.error("Error fetching organizer details:", error);
