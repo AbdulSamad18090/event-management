@@ -269,6 +269,7 @@ export default function BrowseEvents() {
                     time={event.time}
                     organizer={event.organizer}
                     pricing={event.pricing}
+                    isPastEvent={true}
                     data-aos="fade-up"
                     data-aos-delay={i * 100}
                   />

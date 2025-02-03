@@ -52,6 +52,7 @@ export function EventCard({
   description,
   organizer,
   pricing,
+  isPastEvent = false,
 }) {
   const [organizerName, setOrganizerName] = useState("Loading...");
   const [organizerDetails, setOrganizerDetails] = useState(null);
@@ -214,10 +215,10 @@ export function EventCard({
         </Card>
       </CardContent>
       <CardFooter>
-        <Dialog>
+        <Dialog className={`${isPastEvent && "hidden"}`}>
           <DialogTrigger className="w-full">
             <Button
-              className="w-full"
+              className={`w-full ${isPastEvent && "hidden"}`}
               onClick={() => {
                 setQuantities(
                   Object.keys(pricing).reduce(
@@ -354,9 +355,7 @@ export function EventCard({
               {quantities.general === 0 &&
               quantities.vip === 0 &&
               quantities.standard === 0 ? (
-                <Button onClick={handleAddToCart}>
-                  Add To Card
-                </Button>
+                <Button onClick={handleAddToCart}>Add To Card</Button>
               ) : (
                 <DialogClose>
                   <Button onClick={handleAddToCart} className="w-full">
