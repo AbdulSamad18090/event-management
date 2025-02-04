@@ -3,8 +3,20 @@
 import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTopReviews } from "@/lib/features/reviewSlice";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LoaderCircle, Star } from "lucide-react";
 
 export default function Testimonials() {
+  const { topReviews, loading } = useSelector((state) => state.review);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchTopReviews());
+  }, [dispatch]);
+
   useEffect(() => {
     AOS.init({
       duration: 1000, // Animation duration in milliseconds
@@ -46,7 +58,63 @@ export default function Testimonials() {
         >
           What Our Users Say
         </h2>
-        <div className="grid md:grid-cols-2 gap-8">
+        {loading ? (
+          <Card>
+            <CardContent className="pt-6 ">
+              <p className="text-center text-muted-foreground flex items-center gap-2">
+                <span>
+                  <LoaderCircle className="animate-spin text-xl" />
+                </span>
+                <span>Loading reviews...</span>
+              </p>
+            </CardContent>
+          </Card>
+        ) : null}
+        {!topReviews && !loading ? (
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground">
+                No reviews yet. Be the first to share your thoughts on events.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+            {topReviews?.map((review, i) => (
+              <Card
+                key={review._id}
+                data-aos={i % 2 !== 1 ? "fade-up-right" : "fade-up-left"}
+              data-aos-delay={i * 100}
+              data-aos-duration="1000"
+              data-aos-easing="ease-in-out"
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={""} alt={review?.attendeeName} />
+                      <AvatarFallback>{review?.attendeeName[0]}</AvatarFallback>
+                    </Avatar>
+                    <span>{review?.attendeeName}</span>
+                    <div className="flex ml-auto">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${i < review?.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                        />
+                      ))}
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground italic">
+                    {review?.review}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+        {/* <div className="grid md:grid-cols-2 gap-8">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
@@ -62,7 +130,7 @@ export default function Testimonials() {
               <h4 className="text-lg font-bold">{testimonial.name}</h4>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
     </section>
   );

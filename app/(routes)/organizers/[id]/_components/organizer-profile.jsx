@@ -2,14 +2,30 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AOS from "aos";
 import { getInitials } from "../../utils";
+import { useSelector } from "react-redux";
 export default function OrganizerProfile({
   organizer,
   organizedEvents,
   totalAttendees,
 }) {
+  const { reviews } = useSelector((state) => state.review);
+  const [averageRating, setAverageRating] = useState(0);
+
+  useEffect(() => {
+    if (reviews?.length > 0) {
+      const totalRating = reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      setAverageRating(totalRating / reviews?.length);
+    } else {
+      setAverageRating(0); // Default to 0 if no reviews
+    }
+  }, [reviews]);
+
   useEffect(() => {
     AOS.init({
       duration: 500,
@@ -21,10 +37,7 @@ export default function OrganizerProfile({
       <CardHeader>
         <CardTitle className="flex items-center gap-4">
           <Avatar className="w-16 h-16">
-            <AvatarImage
-              src={organizer?.image}
-              alt="Organizer"
-            />
+            <AvatarImage src={organizer?.image} alt="Organizer" />
             <AvatarFallback>{getInitials(organizer?.name)}</AvatarFallback>
           </Avatar>
           <div>
@@ -45,7 +58,7 @@ export default function OrganizerProfile({
             Events Organized
           </div>
           <div>
-            <strong className="block">4.8</strong>
+            <strong className="block">{averageRating}</strong>
             Average Rating
           </div>
           <div>

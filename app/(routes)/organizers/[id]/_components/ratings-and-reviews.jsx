@@ -63,7 +63,7 @@ export default function RatingsAndReviews() {
                 <CardTitle className="flex items-center gap-2">
                   <Avatar className="w-8 h-8">
                     <AvatarImage
-                      src={`/placeholder.svg?height=32&width=32`}
+                      src={""}
                       alt={review?.attendeeName}
                     />
                     <AvatarFallback>{review?.attendeeName[0]}</AvatarFallback>
