@@ -19,6 +19,7 @@ import {
 import AOS from "aos";
 import { ReviewCard } from "./_components/ReviewCard";
 import { useSession } from "next-auth/react";
+import { fetchReviews } from "@/lib/features/reviewSlice";
 
 export default function OrganizerDetailsPage() {
   const dispatch = useDispatch();
@@ -49,6 +50,7 @@ export default function OrganizerDetailsPage() {
   useEffect(() => {
     getOrganizerDetails(id);
     dispatch(fetchEventsOfOrganizer(id));
+    dispatch(fetchReviews(id));
   }, [dispatch, id]);
 
   const { pastEvents, upcomingEvents, ongoingEvents } = filterEvents(events);

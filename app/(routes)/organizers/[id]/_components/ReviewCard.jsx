@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star } from "lucide-react";
+import { LoaderCircle, Star } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { postReview } from "@/lib/features/reviewSlice";
 
 export function ReviewCard({ organizerId, attendeeId, attendeeName, role }) {
   const [newReview, setNewReview] = useState({
@@ -19,6 +21,8 @@ export function ReviewCard({ organizerId, attendeeId, attendeeName, role }) {
     comment: "",
   });
   const [isHovering, setIsHovering] = useState(0);
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.review);
 
   const handleStarClick = (rating) => {
     setNewReview((prev) => ({ ...prev, rating }));
@@ -47,12 +51,18 @@ export function ReviewCard({ organizerId, attendeeId, attendeeName, role }) {
         description: "An unexpected error occurred while submitting",
       });
     } else {
-      console.log("Submitted review:", {
+      const reviewData = {
         organizerId,
         attendeeId,
         attendeeName,
         rating: newReview.rating,
         review: newReview.comment,
+      };
+      dispatch(postReview(reviewData));
+      setNewReview({ rating: 0, comment: "" });
+      toast({
+        title: "Review submitted",
+        description: "Thank you for your feedback",
       });
     }
   };
@@ -139,7 +149,14 @@ export function ReviewCard({ organizerId, attendeeId, attendeeName, role }) {
             className=""
             disabled={newReview.rating === 0 || newReview.comment.length < 10}
           >
-            Submit Review
+            {loading ? (
+              <>
+                <LoaderCircle className="animate-spin" />
+                <span>Please wait...</span>
+              </>
+            ) : (
+              "Submit Review"
+            )}
           </Button>
         </form>
       </CardContent>
