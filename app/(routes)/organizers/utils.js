@@ -83,12 +83,12 @@ export const fetchNoOfAttendeesForOrganizer = async (id) => {
 
 export function formatNumber(value) {
   if (value >= 1_000_000_000) {
-    return (value / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B"; // Billion
+    return (value / 1_000_000_000).toFixed(2).replace(/\.0$/, "") + "B"; // Billion
   } else if (value >= 1_000_000) {
-    return (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"; // Million
+    return (value / 1_000_000).toFixed(2).replace(/\.0$/, "") + "M"; // Million
   } else if (value >= 1_000) {
-    return (value / 1_000).toFixed(1).replace(/\.0$/, "") + "K"; // Thousand
+    return (value / 1_000).toFixed(2).replace(/\.0$/, "") + "K"; // Thousand
   } else {
-    return value.toString(); // Less than 1,000, return as is
+    return value?.toString(); // Less than 1,000, return as is
   }
 }

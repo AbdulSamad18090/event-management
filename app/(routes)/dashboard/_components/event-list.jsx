@@ -1,4 +1,10 @@
-import { CalendarDays, MapPin, Users } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  CalendarIcon,
+  MapPin,
+  Users,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -6,74 +12,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-const events = [
-  {
-    id: "1",
-    name: "Tech Conference 2024",
-    date: "2024-06-15",
-    location: "San Francisco, CA",
-    attendees: 500,
-  },
-  {
-    id: "2",
-    name: "Music Festival",
-    date: "2024-07-20",
-    location: "Austin, TX",
-    attendees: 10000,
-  },
-  {
-    id: "3",
-    name: "Food & Wine Expo",
-    date: "2024-08-05",
-    location: "New York, NY",
-    attendees: 2000,
-  },
-  {
-    id: "1",
-    name: "Tech Conference 2024",
-    date: "2024-06-15",
-    location: "San Francisco, CA",
-    attendees: 500,
-  },
-  {
-    id: "2",
-    name: "Music Festival",
-    date: "2024-07-20",
-    location: "Austin, TX",
-    attendees: 10000,
-  },
-  {
-    id: "3",
-    name: "Food & Wine Expo",
-    date: "2024-08-05",
-    location: "New York, NY",
-    attendees: 2000,
-  },
-  {
-    id: "1",
-    name: "Tech Conference 2024",
-    date: "2024-06-15",
-    location: "San Francisco, CA",
-    attendees: 500,
-  },
-  {
-    id: "2",
-    name: "Music Festival",
-    date: "2024-07-20",
-    location: "Austin, TX",
-    attendees: 10000,
-  },
-  {
-    id: "3",
-    name: "Food & Wine Expo",
-    date: "2024-08-05",
-    location: "New York, NY",
-    attendees: 2000,
-  },
-];
+export function EventList({ events, className }) {
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "Unknown Date";
+    const dateObj = new Date(timestamp);
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(dateObj);
+  };
 
-export function EventList({ className }) {
   return (
     <Card className={className}>
       <CardHeader>
@@ -83,30 +34,34 @@ export function EventList({ className }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4 h-[400px] overflow-y-auto custom-scrollbar">
+        <div className="grid md:grid-cols-2 grid-cols-1 gap-4 max-h-[400px] overflow-y-auto custom-scrollbar">
           {events.map((event) => (
             <div
-              key={event.id}
-              className="flex items-center bg-card p-4 rounded-lg border border-border"
+              key={event._id}
+              className="flex bg-card p-4 rounded-lg border border-border"
             >
               <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">{event.name}</p>
-                <div className="flex items-center pt-2">
-                  <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
-                  <span className="text-xs text-muted-foreground">
-                    {event.date}
-                  </span>
+                <p className="text-base font-medium leading-none mb-3">{event.name}</p>
+                <div className="flex items-center">
+                  <CalendarIcon className="mr-2 h-4 w-4 opacity-70 " />
+                  <Badge variant="outline" className="font-normal">
+                    {formatTimestamp(event?.date?.from)}
+                  </Badge>
+                  <ArrowRight size={15} />
+                  <Badge className="font-normal">
+                    {formatTimestamp(event?.date?.to)}
+                  </Badge>
                 </div>
                 <div className="flex items-center">
                   <MapPin className="mr-2 h-4 w-4 opacity-70" />{" "}
                   <span className="text-xs text-muted-foreground">
-                    {event.location}
+                    {event?.location}
                   </span>
                 </div>
                 <div className="flex items-center">
                   <Users className="mr-2 h-4 w-4 opacity-70" />{" "}
                   <span className="text-xs text-muted-foreground">
-                    {event.attendees} attendees
+                    {event?.attendees?.length} attendees
                   </span>
                 </div>
               </div>
